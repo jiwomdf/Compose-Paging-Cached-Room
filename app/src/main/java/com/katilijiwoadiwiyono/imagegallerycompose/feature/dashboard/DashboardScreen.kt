@@ -22,7 +22,7 @@ fun DashboardScreenPreview() {
 @Composable
 fun DashboardScreen() {
 
-    val data = (1..100).map(Integer::toString)
+    val data = (1..15).map(Integer::toString)
 
     Scaffold(
         topBar = {
