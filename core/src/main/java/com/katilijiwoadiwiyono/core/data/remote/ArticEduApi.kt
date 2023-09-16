@@ -1,15 +1,14 @@
 package com.katilijiwoadiwiyono.core.data.remote
 
 import com.google.gson.Gson
-import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkDataResponse
 import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkResponse
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Inject
 import retrofit2.http.POST
 import retrofit2.http.Query
+import javax.inject.Inject
 
 interface ArticEduApi {
 

@@ -10,10 +10,10 @@ import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeys
 @Dao
 interface RemoteKeysDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(remoteKey: List<RemoteKeys>)
+    suspend fun insertRemoteKeys(remoteKey: List<RemoteKeys>)
 
     @Query("Select * From ms_remote_key Where image_id = :id")
-    suspend fun getRemoteKeyByMovieID(id: Int): RemoteKeys?
+    suspend fun getRemoteKeyByImageId(id: String): RemoteKeys?
 
     @Query("Delete From ms_remote_key")
     suspend fun clearRemoteKeys()

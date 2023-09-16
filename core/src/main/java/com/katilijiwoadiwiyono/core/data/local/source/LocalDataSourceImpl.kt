@@ -24,11 +24,11 @@ class LocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun insertAll(remoteKey: List<RemoteKeys>) {
-        remoteKeysDao.insertAll(remoteKey)
+        remoteKeysDao.insertRemoteKeys(remoteKey)
     }
 
-    override suspend fun getRemoteKeyByMovieID(id: Int): RemoteKeys? {
-        return remoteKeysDao.getRemoteKeyByMovieID(id)
+    override suspend fun getRemoteKeyByMovieID(id: String): RemoteKeys? {
+        return remoteKeysDao.getRemoteKeyByImageId(id)
     }
 
     override suspend fun clearRemoteKeys() {

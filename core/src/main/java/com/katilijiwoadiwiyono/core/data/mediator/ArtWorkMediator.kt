@@ -166,12 +166,10 @@ class ArtWorkMediator(
                 if (remoteKeys != null) {
                     localDataSource.insertAll(remoteKeys)
                     val remotePage = movies.paginationResponse.currentPage
-                    val data = movies.artworkResponse.onEachIndexed { _, movie -> remotePage = page }
-                    data.map {
-                        val entity = ArtWorkEntity.mapArtWorkModel(data)
-                        data.let {
-                            localDataSource.insertArtWork(entity)
-                        }
+                    val data = movies.artworkResponse
+                    val entity = ArtWorkEntity.mapArtWorkModel(data, remotePage)
+                    data.let {
+                        localDataSource.insertArtWork(entity)
                     }
                 }
             }

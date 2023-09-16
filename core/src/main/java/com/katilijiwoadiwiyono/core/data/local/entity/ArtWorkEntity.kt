@@ -17,13 +17,17 @@ data class ArtWorkEntity(
     val page: Int
 ) {
     companion object {
-        fun mapArtWorkModel(response: List<ArtworkResponse.ArtworkDataResponse>): List<ArtWorkEntity> {
+        fun mapArtWorkModel(
+            response: List<ArtworkResponse.ArtworkDataResponse>,
+            page: Int
+        ): List<ArtWorkEntity> {
             return response.map {
                 ArtWorkEntity(
                     title = it.title ?: "",
                     description = it.description ?: "",
                     imageId = it.imageId ?: "",
-                    imageUrl = "https://www.artic.edu/iiif/2/${it.imageId}/full/200,/0/default.jpg"
+                    imageUrl = "https://www.artic.edu/iiif/2/${it.imageId}/full/200,/0/default.jpg",
+                    page = page
                 )
             }
         }

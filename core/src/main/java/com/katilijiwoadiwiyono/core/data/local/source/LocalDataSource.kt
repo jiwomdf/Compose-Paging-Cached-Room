@@ -9,7 +9,7 @@ interface LocalDataSource {
     fun getArtWork(): PagingSource<Int, ArtWorkEntity>
     suspend fun clearAllArtWork()
     suspend fun insertAll(remoteKey: List<RemoteKeys>)
-    suspend fun getRemoteKeyByMovieID(id: Int): RemoteKeys?
+    suspend fun getRemoteKeyByMovieID(id: String): RemoteKeys?
     suspend fun clearRemoteKeys()
     suspend fun getCreationTime(): Long?
 }

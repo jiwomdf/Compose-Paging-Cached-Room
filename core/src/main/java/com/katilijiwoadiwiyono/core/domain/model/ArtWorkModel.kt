@@ -1,7 +1,6 @@
 package com.katilijiwoadiwiyono.core.domain.model
 
 import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
-import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkDataResponse
 import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkResponse
 
 data class ArtWorkModel(
