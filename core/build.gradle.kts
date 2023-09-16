@@ -9,6 +9,11 @@ android {
     namespace = "com.katilijiwoadiwiyono.core"
     compileSdk = 33
 
+    buildFeatures.buildConfig = true
+    buildTypes.forEach {
+        it.buildConfigField("String", "BASE_URL", project.properties["base_url"].toString())
+    }
+
     defaultConfig {
         minSdk = 21
 
@@ -26,11 +31,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
@@ -43,6 +48,8 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

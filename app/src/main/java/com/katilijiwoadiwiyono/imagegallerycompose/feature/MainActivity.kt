@@ -3,6 +3,7 @@ package com.katilijiwoadiwiyono.imagegallerycompose.feature
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -13,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.DashboardScreen
 import com.katilijiwoadiwiyono.imagegallerycompose.ui.theme.ImageGalleryComposeTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
