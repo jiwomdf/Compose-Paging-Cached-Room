@@ -1,6 +1,7 @@
 package com.katilijiwoadiwiyono.core.data.remote
 
 import com.google.gson.Gson
+import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkDataResponse
 import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkResponse
 import okhttp3.OkHttpClient
 import retrofit2.Response

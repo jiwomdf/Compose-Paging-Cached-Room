@@ -50,6 +50,7 @@ dependencies {
 
     api(project(":dependencies"))
     implementation(project(":core"))
+    implementation("androidx.paging:paging-common-ktx:3.2.1")
 
     val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
     implementation(composeBom)

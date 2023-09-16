@@ -13,7 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.DashboardScreen
 import com.katilijiwoadiwiyono.imagegallerycompose.ui.theme.ImageGalleryComposeTheme
+import dagger.hilt.EntryPoint
 
+@EntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,21 +30,5 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ImageGalleryComposeTheme {
-        Greeting("Android")
     }
 }
