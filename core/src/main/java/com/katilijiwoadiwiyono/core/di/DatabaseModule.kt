@@ -1,8 +1,12 @@
 package com.katilijiwoadiwiyono.core.di
 
 import android.app.Application
+import android.content.Context
+import android.media.Image
 import androidx.room.Room
 import com.katilijiwoadiwiyono.core.data.local.ImageGalleryRoom
+import com.katilijiwoadiwiyono.core.data.local.dao.ArtWorkDao
+import com.katilijiwoadiwiyono.core.data.local.dao.RemoteKeysDao
 import com.katilijiwoadiwiyono.core.utils.DatabaseUtil
 import dagger.Module
 import dagger.Provides
@@ -18,14 +22,18 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideArticEduApi(
-        @ApplicationContext application: Application
-    ) = Room.databaseBuilder(application, ImageGalleryRoom::class.java, DatabaseUtil.DATABASE_NAME)
+        @ApplicationContext context: Context
+    ): ImageGalleryRoom = Room.databaseBuilder(context, ImageGalleryRoom::class.java, DatabaseUtil.DATABASE_NAME)
             .fallbackToDestructiveMigration()
             .allowMainThreadQueries()
             .build()
 
     @Singleton
     @Provides
-    fun provideNotifiedPrayerDao(database: ImageGalleryRoom) = database.artWorkDao()
+    fun provideArtWorkDao(database: ImageGalleryRoom): ArtWorkDao  = database.artWorkDao()
+
+    @Singleton
+    @Provides
+    fun provideRemoteKeysDao(database: ImageGalleryRoom): RemoteKeysDao = database.remoteKeysDao()
 
 }

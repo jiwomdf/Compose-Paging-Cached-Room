@@ -4,5 +4,5 @@ import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkResponse
 import retrofit2.Response
 
 interface RemoteDataSource {
-    fun getArtwork(page: Int, limit: Int): Response<ArtworkResponse>
+    suspend fun getArtwork(page: Int, limit: Int): Response<ArtworkResponse>
 }

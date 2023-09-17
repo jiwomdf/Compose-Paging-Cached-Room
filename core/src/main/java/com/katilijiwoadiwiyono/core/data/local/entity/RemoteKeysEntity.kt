@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 
 @Entity(tableName = "ms_remote_key")
-data class RemoteKeys(
+data class RemoteKeysEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "image_id")
     val imageId: String,

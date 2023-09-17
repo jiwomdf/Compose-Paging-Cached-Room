@@ -11,17 +11,26 @@ import com.katilijiwoadiwiyono.core.domain.usecase.ArtUseCase
 import com.katilijiwoadiwiyono.core.utils.PagingUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
+
+interface IMainViewModel {
+    fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkEntity>>
+}
+
+class FakeMainViewModel: IMainViewModel {
+    override fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkEntity>> {
+        return flow {  }
+    }
+
+}
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val useCase: ArtUseCase
-): ViewModel() {
+): ViewModel(), IMainViewModel {
 
-    @OptIn(ExperimentalPagingApi::class)
-    fun getPopularMovies(page: Int, limit: Int): Flow<PagingData<ArtWorkEntity>> =
+    override fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkEntity>> =
         useCase.getArtwork(page, limit)
-
-
 }

@@ -3,6 +3,9 @@ package com.katilijiwoadiwiyono.core.di
 import com.google.gson.Gson
 import com.katilijiwoadiwiyono.core.BuildConfig
 import com.katilijiwoadiwiyono.core.data.remote.ArticEduApi
+import com.katilijiwoadiwiyono.core.data.repository.ArtRepository
+import com.katilijiwoadiwiyono.core.domain.usecase.ArtIteractor
+import com.katilijiwoadiwiyono.core.domain.usecase.ArtUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,8 +20,8 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideArtUseCase(okHttpClient: OkHttpClient, gson: Gson): ArticEduApi {
-        return ArticEduApi.Creator().articApi(BuildConfig.BASE_URL, okHttpClient, gson)
+    fun provideArtUseCase(repository: ArtRepository): ArtUseCase {
+        return ArtIteractor(repository)
     }
 
 }

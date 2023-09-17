@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import com.katilijiwoadiwiyono.core.data.local.dao.ArtWorkDao
 import com.katilijiwoadiwiyono.core.data.local.dao.RemoteKeysDao
 import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
-import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeys
+import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeysEntity
 import javax.inject.Inject
 
 class LocalDataSourceImpl @Inject constructor(
@@ -23,11 +23,11 @@ class LocalDataSourceImpl @Inject constructor(
         artWorkDao.clearAllArtWork()
     }
 
-    override suspend fun insertAll(remoteKey: List<RemoteKeys>) {
+    override suspend fun insertAll(remoteKey: List<RemoteKeysEntity>) {
         remoteKeysDao.insertRemoteKeys(remoteKey)
     }
 
-    override suspend fun getRemoteKeyByMovieID(id: String): RemoteKeys? {
+    override suspend fun getRemoteKeyByMovieID(id: String): RemoteKeysEntity? {
         return remoteKeysDao.getRemoteKeyByImageId(id)
     }
 

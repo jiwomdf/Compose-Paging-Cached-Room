@@ -7,9 +7,8 @@ import androidx.paging.RemoteMediator
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction
 import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
-import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeys
+import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeysEntity
 import com.katilijiwoadiwiyono.core.data.local.source.LocalDataSource
-import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkResponse
 import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
@@ -58,7 +57,7 @@ class ArtWorkMediator(
     /** LoadType.Append
      * When we need to load data at the end of the currently loaded data set, the load parameter is LoadType.APPEND
      */
-    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, ArtWorkEntity>): RemoteKeys? {
+    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, ArtWorkEntity>): RemoteKeysEntity? {
         // Get the last page that was retrieved, that contained items.
         // From that last page, get the last item
         return state.pages.lastOrNull {
@@ -71,7 +70,7 @@ class ArtWorkMediator(
     /** LoadType.Prepend
      * When we need to load data at the beginning of the currently loaded data set, the load parameter is LoadType.PREPEND
      */
-    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, ArtWorkEntity>): RemoteKeys? {
+    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, ArtWorkEntity>): RemoteKeysEntity? {
         // Get the first page that was retrieved, that contained items.
         // From that first page, get the first item
         return state.pages.firstOrNull {
@@ -87,7 +86,7 @@ class ArtWorkMediator(
      * If this is the first load, then the anchorPosition is null.
      * When PagingDataAdapter.refresh() is called, the anchorPosition is the first visible position in the displayed list, so we will need to load the page that contains that specific item.
      */
-    private suspend fun getRemoteKeyClosestToCurrentPosition(state: PagingState<Int, ArtWorkEntity>): RemoteKeys? {
+    private suspend fun getRemoteKeyClosestToCurrentPosition(state: PagingState<Int, ArtWorkEntity>): RemoteKeysEntity? {
         // The paging library is trying to load data after the anchor position
         // Get the item closest to the anchor position
         return state.anchorPosition?.let { position ->
@@ -105,7 +104,6 @@ class ArtWorkMediator(
      * or at the beginning of the data (LoadType.PREPEND) that we previously loaded,
      * or if this the first time we're loading data (LoadType.REFRESH).
      */
-    @OptIn(ExperimentalPagingApi::class)
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, ArtWorkEntity>
@@ -155,7 +153,7 @@ class ArtWorkMediator(
                 val prevKey = if (page > 1) page - 1 else null
                 val nextKey = if (endOfPaginationReached) null else page + 1
                 val remoteKeys = movies?.artworkResponse?.map {
-                    RemoteKeys(
+                    RemoteKeysEntity(
                         imageId = it.imageId ?: "",
                         prevKey = prevKey,
                         currentPage = page,

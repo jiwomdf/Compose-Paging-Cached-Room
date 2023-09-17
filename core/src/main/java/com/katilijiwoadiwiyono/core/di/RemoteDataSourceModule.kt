@@ -3,6 +3,8 @@ package com.katilijiwoadiwiyono.core.di
 import com.google.gson.Gson
 import com.katilijiwoadiwiyono.core.BuildConfig
 import com.katilijiwoadiwiyono.core.data.remote.ArticEduApi
+import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
+import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,11 +15,11 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-object DataSourceModule {
+object RemoteDataSourceModule {
 
     @Provides
     @Singleton
-    fun provideDataSource(okHttpClient: OkHttpClient, gson: Gson): ArticEduApi {
-        return ArticEduApi.Creator().articApi(BuildConfig.BASE_URL, okHttpClient, gson)
+    fun provideRemoteDataSource(articEduApi: ArticEduApi): RemoteDataSource {
+        return RemoteDataSourceImpl(articEduApi)
     }
 }

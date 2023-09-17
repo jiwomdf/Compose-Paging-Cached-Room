@@ -9,7 +9,7 @@ class RemoteDataSourceImpl @Inject constructor(
     private val articEduApi: ArticEduApi
 ): RemoteDataSource {
 
-    override fun getArtwork(page: Int, limit: Int): Response<ArtworkResponse> {
+    override suspend fun getArtwork(page: Int, limit: Int): Response<ArtworkResponse> {
         return articEduApi.getArtwork(page, limit)
     }
 }

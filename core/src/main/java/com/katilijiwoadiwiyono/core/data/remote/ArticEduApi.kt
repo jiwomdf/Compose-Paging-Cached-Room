@@ -13,15 +13,19 @@ import javax.inject.Inject
 interface ArticEduApi {
 
     @POST("v1/artworks?")
-    fun getArtwork(@Query("page") page: Int, @Query("limit") limit: Int): Response<ArtworkResponse>
+    suspend fun getArtwork(@Query("page") page: Int, @Query("limit") limit: Int): Response<ArtworkResponse>
 
     class Creator {
         @Inject
-        fun articApi(url: String, httpClient: OkHttpClient, gson: Gson): ArticEduApi {
+        fun articApi(
+            url: String,
+            httpClient: OkHttpClient,
+            gsonConverterFactory: GsonConverterFactory
+        ): ArticEduApi {
             val retrofit = Retrofit
                 .Builder()
                 .baseUrl(url)
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(gsonConverterFactory)
                 .client(httpClient)
                 .build()
 

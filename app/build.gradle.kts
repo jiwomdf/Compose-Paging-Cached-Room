@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -20,6 +21,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                argument("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
+
+
     }
 
     buildTypes {
@@ -51,6 +60,8 @@ dependencies {
     api(project(":dependencies"))
     implementation(project(":core"))
     implementation("androidx.paging:paging-common-ktx:3.2.1")
+    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+    implementation("androidx.paging:paging-compose:3.2.1")
 
     val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
     implementation(composeBom)
@@ -86,6 +97,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     // Accompanist
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+
+    implementation("androidx.activity:activity-ktx:1.7.2")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
