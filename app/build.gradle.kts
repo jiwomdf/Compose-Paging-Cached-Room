@@ -76,6 +76,8 @@ dependencies {
     implementation("androidx.paging:paging-runtime-ktx:3.2.1")
     implementation("androidx.paging:paging-compose:3.2.1")
 
+    //Shimmer
+    implementation("com.valentinilk.shimmer:compose-shimmer:1.0.3")
 
     // Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.48")

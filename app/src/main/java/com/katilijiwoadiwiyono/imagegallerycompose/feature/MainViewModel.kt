@@ -7,8 +7,8 @@ import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.domain.usecase.ArtUseCase
 import com.katilijiwoadiwiyono.core.utils.Resource
 import com.katilijiwoadiwiyono.core.utils.ResourceState
-import com.katilijiwoadiwiyono.imagegallerycompose.util.setFailed
-import com.katilijiwoadiwiyono.imagegallerycompose.util.setSuccess
+import com.katilijiwoadiwiyono.imagegallerycompose.util.setError
+import com.katilijiwoadiwiyono.imagegallerycompose.util.setValue
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -28,6 +28,7 @@ interface IMainViewModel {
     val text: MutableStateFlow<String>
     val debounceText: Flow<String>
     val searchResult: StateFlow<Resource<List<ArtWorkModel>>>
+    val isSearchLoading: StateFlow<Boolean>
     fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
     fun searchArtwork(query: String, fetchDistance: Int, limit: Int)
 }
@@ -36,6 +37,8 @@ class FakeMainViewModel: IMainViewModel {
     override val text: MutableStateFlow<String> = MutableStateFlow("")
     override val debounceText: Flow<String> = flow {  }
     override val searchResult:StateFlow<Resource<List<ArtWorkModel>>> = MutableStateFlow(Resource(ResourceState.Success, emptyList()))
+    override val isSearchLoading: StateFlow<Boolean> = MutableStateFlow(false)
+
     override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> {
         return flow {  }
     }
@@ -49,7 +52,7 @@ class MainViewModel @Inject constructor(
 ): ViewModel(), IMainViewModel {
 
     override val text = MutableStateFlow("")
-    override val debounceText = text.debounce(2000)
+    override val debounceText = text.debounce(1000)
         .distinctUntilChanged()
         .flatMapLatest {
             flowOf(it)
@@ -58,9 +61,11 @@ class MainViewModel @Inject constructor(
     private var _searchResult = MutableStateFlow(Resource<List<ArtWorkModel>>(ResourceState.Success, emptyList()))
     override val searchResult: StateFlow<Resource<List<ArtWorkModel>>> = _searchResult
 
-    override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> {
-        return useCase.getArtwork(fetchDistance, limit)
-    }
+    override val isSearchLoading: StateFlow<Boolean> get() = _isLoading
+    private var _isLoading = MutableStateFlow(false)
+
+    override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
+        useCase.getArtwork(fetchDistance, limit)
 
     override fun searchArtwork(
         query: String,
@@ -69,9 +74,12 @@ class MainViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                _searchResult.setSuccess(useCase.searchArtwork(query, fetchDistance, limit))
+                _isLoading.setValue(true)
+                _searchResult.setValue(useCase.searchArtwork(query, fetchDistance, limit))
+                _isLoading.setValue(false)
             } catch (ex: Exception) {
-                _searchResult.setFailed(ex.message.toString())
+                _isLoading.setValue(false)
+                _searchResult.setError(ex.message.toString())
             }
         }
     }

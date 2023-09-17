@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -59,6 +58,7 @@ import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.items
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.setToggleTheme
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.snackBarError
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.components.ListImageItem
+import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.components.ListImageItemShimmer
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.components.SearchBar
 import com.katilijiwoadiwiyono.imagegallerycompose.ui.theme.Red80
 import kotlinx.coroutines.launch
@@ -83,6 +83,7 @@ fun DashboardScreen(
     val text by viewModel.text.collectAsState()
     val debounceText by viewModel.debounceText.collectAsState("")
     val searchResult by viewModel.searchResult.collectAsState()
+    val isSearchLoading by viewModel.isSearchLoading.collectAsState()
     val isSearchMode = debounceText.isNotEmpty()
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -150,7 +151,10 @@ fun DashboardScreen(
         ) {
 
             if(isSearchMode) {
-                if(searchResult.data != null && searchResult.data?.isEmpty() == true) {
+                if(isSearchLoading){
+                    ListImageItemShimmer()
+                    return@Scaffold
+                } else if(searchResult.data != null && searchResult.data?.isEmpty() == true) {
                     CenterText(context.getString(R.string.result_empty))
                     return@Scaffold
                 }
