@@ -133,12 +133,15 @@ fun DashboardScreen(
                     }
                     is ResourceState.Success -> {
                         LazyVerticalGrid(
-                            columns = GridCells.Fixed(3)
+                            columns = GridCells.Fixed(1)
                         ) {
-                            searchResult.data?.let { list ->
+                            if(!searchResult.data.isNullOrEmpty()) {
+                                val list = searchResult.data ?: emptyList()
                                 items(list.size) {
                                     ListImageItem(Modifier, list[it])
                                 }
+                            } else {
+
                             }
                         }
                     }

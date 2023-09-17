@@ -34,6 +34,16 @@ data class ArtWorkModel(
                 imageUrl = entity.imageUrl
             )
         }
+
+        fun mapArtWorkModel(response: ArtworkResponse.ArtworkDataResponse): ArtWorkModel {
+            return ArtWorkModel(
+                id = response.id,
+                title = response.title ?: "",
+                description = response.description ?: "",
+                imageId = response.imageId ?: "",
+                imageUrl = if(!response.imageId.isNullOrEmpty()) getImageUrl(response.imageId) else ""
+            )
+        }
     }
 
 }

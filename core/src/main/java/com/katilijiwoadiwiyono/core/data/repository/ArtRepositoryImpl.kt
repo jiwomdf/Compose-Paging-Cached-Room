@@ -23,12 +23,12 @@ class ArtRepositoryImpl @Inject constructor(
 ): ArtRepository {
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getArtwork(query: String, fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
+    override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
         Pager(
             config = PagingConfig(
                 pageSize = limit,
                 prefetchDistance = fetchDistance,
-                initialLoadSize = limit, // How many items you want to load initially
+                initialLoadSize = limit,
             ),
             pagingSourceFactory = {
                 database.artWorkDao().getArtWork()
@@ -36,8 +36,7 @@ class ArtRepositoryImpl @Inject constructor(
             remoteMediator = ArtWorkMediator(
                 database = database,
                 remoteDataSource = remoteDataSource,
-                pageLimit = limit,
-                query = query
+                pageLimit = limit
             )
         ).flow.map { pagingData ->
             pagingData.map out@{ userEntity ->

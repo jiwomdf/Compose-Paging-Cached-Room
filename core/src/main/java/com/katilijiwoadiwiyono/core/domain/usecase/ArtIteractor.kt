@@ -12,7 +12,7 @@ class ArtIteractor @Inject constructor(
     private val repository: ArtRepository
 ): ArtUseCase {
     override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> {
-        return repository.getArtwork("", fetchDistance, limit)
+        return repository.getArtwork(fetchDistance, limit)
     }
 
     override suspend fun searchArtwork(

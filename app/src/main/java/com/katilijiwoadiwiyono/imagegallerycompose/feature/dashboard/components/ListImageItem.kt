@@ -18,8 +18,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
 import coil.request.ImageRequest
+import coil.size.Size
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.imagegallerycompose.R
 import com.katilijiwoadiwiyono.imagegallerycompose.ui.theme.BackgroundGrey500
@@ -56,22 +61,36 @@ fun ListImageItem(
             Box {
                 val isImageEmpty = artWork?.imageUrl.isNullOrEmpty()
                 if(!isImageEmpty) {
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         modifier = Modifier
-                            .height(150.dp)
+                            .height(200.dp)
                             .fillMaxWidth()
                             .background(BackgroundGrey500),
                         model = ImageRequest.Builder(context)
                             .data(artWork?.imageUrl)
-                            .crossfade(true)
+                            .size(Size.ORIGINAL)
                             .build(),
+                        loading = {},
                         contentDescription = "",
                         contentScale = ContentScale.Crop,
+                        imageLoader = ImageLoader.Builder(context)
+                            .memoryCache {
+                                MemoryCache.Builder(context)
+                                    .maxSizePercent(0.25)
+                                    .build()
+                            }
+                            .diskCache {
+                                DiskCache.Builder()
+                                    .directory(context.cacheDir.resolve("image_cache"))
+                                    .maxSizePercent(0.02)
+                                    .build()
+                            }
+                            .build()
                     )
                 } else {
                     Column(
                         modifier = Modifier
-                            .height(150.dp)
+                            .height(200.dp)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -87,7 +106,7 @@ fun ListImageItem(
                         .align(Alignment.BottomStart)
                         .padding(start = 4.dp, bottom = 4.dp, end = 8.dp),
                     text = (artWork?.title ?: "").subStrTitle(),
-                    fontSize = 11.sp,
+                    fontSize = 13.sp,
                     maxLines = 1
                 )
             }

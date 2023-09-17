@@ -1,6 +1,5 @@
 package com.katilijiwoadiwiyono.core.data.mediator
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -23,8 +22,7 @@ import java.util.concurrent.TimeUnit
 class ArtWorkMediator(
     private val database: ImageGalleryRoom,
     private val remoteDataSource: RemoteDataSource,
-    private val pageLimit: Int,
-    private val query: String
+    private val pageLimit: Int
 ) : RemoteMediator<Int, ArtWorkEntity>() {
 
     private var artworkDao: ArtWorkDao? = null
@@ -81,12 +79,7 @@ class ArtWorkMediator(
         }
 
         try {
-            val apiResponse =
-                if(query.isEmpty()) {
-                    remoteDataSource.getArtwork(page = page, pageLimit)
-                } else {
-                    remoteDataSource.searchArtwork(query, page, pageLimit)
-                }
+            val apiResponse = remoteDataSource.getArtwork(page = page, pageLimit)
 
             if(apiResponse.isSuccessful) {
                 val artworkResponse = apiResponse.body()
