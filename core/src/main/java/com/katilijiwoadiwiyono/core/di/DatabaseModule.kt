@@ -27,13 +27,4 @@ object DatabaseModule {
             .fallbackToDestructiveMigration()
             .allowMainThreadQueries()
             .build()
-
-    @Singleton
-    @Provides
-    fun provideArtWorkDao(database: ImageGalleryRoom): ArtWorkDao  = database.artWorkDao()
-
-    @Singleton
-    @Provides
-    fun provideRemoteKeysDao(database: ImageGalleryRoom): RemoteKeysDao = database.remoteKeysDao()
-
 }

@@ -147,22 +147,22 @@ data class ArtworkResponse(
     }
 
     data class PaginationResponse(
-        @SerializedName("total") val total: Double,
-        @SerializedName("limit") val limit: Double,
-        @SerializedName("offset") val offset: Double,
-        @SerializedName("total_pages") val totalPages: Double,
-        @SerializedName("current_page") val currentPage: Int,
-        @SerializedName("prev_url") val prevUrl: String,
-        @SerializedName("next_url") val nextUrl: String,
+        @SerializedName("total") val total: Double?,
+        @SerializedName("limit") val limit: Double?,
+        @SerializedName("offset") val offset: Double?,
+        @SerializedName("total_pages") val totalPages: Double?,
+        @SerializedName("current_page") val currentPage: Int?,
+        @SerializedName("prev_url") val prevUrl: String?,
+        @SerializedName("next_url") val nextUrl: String?,
     )
     data class InfoResponse(
-        @SerializedName("license_text") val licenseText: String,
-        @SerializedName("license_links") val licenseLinks: List<String>,
-        @SerializedName("version") val version: String,
+        @SerializedName("license_text") val licenseText: String?,
+        @SerializedName("license_links") val licenseLinks: List<String>?,
+        @SerializedName("version") val version: String?,
     )
 
     data class ConfigResponse(
-        @SerializedName("iiif_url") val iiifUrl: String,
-        @SerializedName("website_url") val websiteUrl: String,
+        @SerializedName("iiif_url") val iiifUrl: String?,
+        @SerializedName("website_url") val websiteUrl: String?,
     )
 }

@@ -70,10 +70,10 @@ fun DashboardScreen(
                     key = { it.imageId }
                 ) {
                     ListImageItem(
-                        modifier = Modifier
+                        modifier = Modifier,
+                        artWork = it
                     )
                 }
-
 
                 val loadState = artWork.loadState.mediator
                 item {

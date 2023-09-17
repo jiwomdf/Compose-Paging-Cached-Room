@@ -25,8 +25,7 @@ object RepositoryModule {
     fun provideArtRepository(
         database: ImageGalleryRoom,
         remoteDataSource: RemoteDataSource,
-        localDataSource: LocalDataSource
     ): ArtRepository {
-        return ArtRepositoryImpl(database, remoteDataSource, localDataSource)
+        return ArtRepositoryImpl(database, remoteDataSource)
     }
 }

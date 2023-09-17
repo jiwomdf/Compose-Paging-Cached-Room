@@ -16,11 +16,11 @@ import javax.inject.Inject
 
 
 interface IMainViewModel {
-    fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkEntity>>
+    fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
 }
 
 class FakeMainViewModel: IMainViewModel {
-    override fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkEntity>> {
+    override fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkModel>> {
         return flow {  }
     }
 
@@ -31,6 +31,6 @@ class MainViewModel @Inject constructor(
     private val useCase: ArtUseCase
 ): ViewModel(), IMainViewModel {
 
-    override fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkEntity>> =
+    override fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
         useCase.getArtwork(page, limit)
 }

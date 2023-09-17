@@ -1,130 +1,76 @@
 package com.katilijiwoadiwiyono.core.data.mediator
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction
+import com.katilijiwoadiwiyono.core.data.local.ImageGalleryRoom
+import com.katilijiwoadiwiyono.core.data.local.dao.ArtWorkDao
+import com.katilijiwoadiwiyono.core.data.local.dao.RemoteKeysDao
 import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeysEntity
 import com.katilijiwoadiwiyono.core.data.local.source.LocalDataSource
 import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
-import kotlinx.coroutines.delay
+import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
+import com.katilijiwoadiwiyono.core.utils.PagingUtil
+import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyClosestToCurrentPosition
+import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyForFirstItem
+import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyForLastItem
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPagingApi::class)
 class ArtWorkMediator(
-    private val database: RoomDatabase,
+    private val database: ImageGalleryRoom,
     private val remoteDataSource: RemoteDataSource,
-    private val localDataSource: LocalDataSource
+    private val pageLimit: Int
 ) : RemoteMediator<Int, ArtWorkEntity>() {
-    /**
-     * When additional data is needed, the Paging library calls the load() method from the RemoteMediator implementation.
-     * This function typically fetches the new data from a network source and saves it to local storage.
-     * Over time the data stored in the database requires invalidation, such as when the user manually triggers a refresh.
-     * This is represented by the LoadType property passed to the load() method.
-     * The LoadType informs the RemoteMediator whether it needs to refresh the existing data or fetch additional data that needs to be appended or prepended to the existing list.
-     */
 
-    /**
-     * In cases where the local data needs to be fully refreshed, initialize() should return InitializeAction.LAUNCH_INITIAL_REFRESH.
-     * This causes the RemoteMediator to perform a remote refresh to fully reload the data.
-     *
-     * In cases where the local data doesn't need to be refreshed, initialize() should return InitializeAction.SKIP_INITIAL_REFRESH.
-     * This causes the RemoteMediator to skip the remote refresh and load the cached data.
-     */
+    private var artworkDao: ArtWorkDao? = null
+    private var remoteKeysDao: RemoteKeysDao? = null
+
+    init {
+        artworkDao = database.artWorkDao()
+        remoteKeysDao = database.remoteKeysDao()
+    }
+
     @ExperimentalPagingApi
     override suspend fun initialize(): InitializeAction {
         val cacheTimeout = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS)
-
-        return if (System.currentTimeMillis() - (localDataSource.getCreationTime()
-                ?: 0) < cacheTimeout
-        ) {
-            // Cached data is up-to-date, so there is no need to re-fetch
-            // from the network.
+        val timeHasSpentSinceLastInsert = System.currentTimeMillis() - (remoteKeysDao?.getCreationTime() ?: 0)
+        val isHasTimeOut = timeHasSpentSinceLastInsert < cacheTimeout
+        return if (isHasTimeOut) {
             InitializeAction.SKIP_INITIAL_REFRESH
         } else {
-            // Need to refresh cached data from network; returning
-            // LAUNCH_INITIAL_REFRESH here will also block RemoteMediator's
-            // APPEND and PREPEND from running until REFRESH succeeds.
             InitializeAction.LAUNCH_INITIAL_REFRESH
         }
     }
 
-    /** LoadType.Append
-     * When we need to load data at the end of the currently loaded data set, the load parameter is LoadType.APPEND
-     */
-    private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, ArtWorkEntity>): RemoteKeysEntity? {
-        // Get the last page that was retrieved, that contained items.
-        // From that last page, get the last item
-        return state.pages.lastOrNull {
-            it.data.isNotEmpty()
-        }?.data?.lastOrNull()?.let { artWork ->
-            localDataSource.getRemoteKeyByMovieID(artWork.imageId)
-        }
-    }
-
-    /** LoadType.Prepend
-     * When we need to load data at the beginning of the currently loaded data set, the load parameter is LoadType.PREPEND
-     */
-    private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, ArtWorkEntity>): RemoteKeysEntity? {
-        // Get the first page that was retrieved, that contained items.
-        // From that first page, get the first item
-        return state.pages.firstOrNull {
-            it.data.isNotEmpty()
-        }?.data?.firstOrNull()?.let { artWork ->
-            localDataSource.getRemoteKeyByMovieID(artWork.imageId)
-        }
-    }
-
-    /** LoadType.REFRESH
-     * Gets called when it's the first time we're loading data, or when PagingDataAdapter.refresh() is called;
-     * so now the point of reference for loading our data is the state.anchorPosition.
-     * If this is the first load, then the anchorPosition is null.
-     * When PagingDataAdapter.refresh() is called, the anchorPosition is the first visible position in the displayed list, so we will need to load the page that contains that specific item.
-     */
-    private suspend fun getRemoteKeyClosestToCurrentPosition(state: PagingState<Int, ArtWorkEntity>): RemoteKeysEntity? {
-        // The paging library is trying to load data after the anchor position
-        // Get the item closest to the anchor position
-        return state.anchorPosition?.let { position ->
-            state.closestItemToPosition(position)?.imageId?.let { id ->
-                localDataSource.getRemoteKeyByMovieID(id)
-            }
-        }
-    }
-
-    /**.
-     *
-     * @param state This gives us information about the pages that were loaded before,
-     * the most recently accessed index in the list, and the PagingConfig we defined when initializing the paging stream.
-     * @param loadType this tells us whether we need to load data at the end (LoadType.APPEND)
-     * or at the beginning of the data (LoadType.PREPEND) that we previously loaded,
-     * or if this the first time we're loading data (LoadType.REFRESH).
-     */
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, ArtWorkEntity>
     ): MediatorResult {
-        var page: Int = when (loadType) {
+        val page: Int = when (loadType) {
             LoadType.REFRESH -> {
                 //New Query so clear the DB
-                val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
-                remoteKeys?.nextKey?.minus(1) ?: 1
+                val remoteKeys = remoteKeysDao.getRemoteKeyClosestToCurrentPosition(state)
+                val lastPage = remoteKeys?.nextKey?.minus(1) ?: 1
+                lastPage
             }
-
             LoadType.PREPEND -> {
-                val remoteKeys = getRemoteKeyForFirstItem(state)
+                val remoteKeys = remoteKeysDao.getRemoteKeyForFirstItem(state)
                 // If remoteKeys is null, that means the refresh result is not in the database yet.
                 val prevKey = remoteKeys?.prevKey
-                prevKey
-                    ?: return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
+                val isReachEndOfPagination = remoteKeys != null
+                val result = prevKey ?: return MediatorResult.Success(endOfPaginationReached = isReachEndOfPagination)
+                result
             }
-
             LoadType.APPEND -> {
-                val remoteKeys = getRemoteKeyForLastItem(state)
+                val remoteKeys = remoteKeysDao.getRemoteKeyForLastItem(state)
 
                 // If remoteKeys is null, that means the refresh result is not in the database yet.
                 // We can return Success with endOfPaginationReached = false because Paging
@@ -132,46 +78,46 @@ class ArtWorkMediator(
                 // If remoteKeys is NOT NULL but its nextKey is null, that means we've reached
                 // the end of pagination for append.
                 val nextKey = remoteKeys?.nextKey
-                nextKey
-                    ?: return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
+                val isReachEndOfPagination = remoteKeys != null
+                nextKey ?: return MediatorResult.Success(endOfPaginationReached = isReachEndOfPagination)
             }
         }
 
         try {
-            val apiResponse = remoteDataSource.getArtwork(page = page, 10) //TODO JIWO
+            Log.e("jiwo", "load: $page", ) //TODO JIWO
+            val apiResponse = remoteDataSource.getArtwork(page = page, pageLimit)
 
-            delay(1000L) //TODO For testing only!
+            if(apiResponse.isSuccessful) {
+                val artworkResponse = apiResponse.body()
+                val endOfPaginationReached = artworkResponse?.artworkResponse.isNullOrEmpty()
 
-            val movies = apiResponse.body()
-            val endOfPaginationReached = movies?.artworkResponse.isNullOrEmpty()
-
-            database.withTransaction {
-                if (loadType == LoadType.REFRESH) {
-                    localDataSource.clearRemoteKeys()
-                    localDataSource.clearAllArtWork()
-                }
-                val prevKey = if (page > 1) page - 1 else null
-                val nextKey = if (endOfPaginationReached) null else page + 1
-                val remoteKeys = movies?.artworkResponse?.map {
-                    RemoteKeysEntity(
-                        imageId = it.imageId ?: "",
+                database.withTransaction {
+                    if (loadType == LoadType.REFRESH) {
+                        remoteKeysDao?.clearRemoteKeys()
+                        artworkDao?.clearAllArtWork()
+                    }
+                    val prevKey = if (page > 1) page - 1 else null
+                    val nextKey = if (endOfPaginationReached) null else page + 1
+                    val remoteKeys = RemoteKeysEntity.mapRemoteKeysEntity(
+                        response = artworkResponse?.artworkResponse,
                         prevKey = prevKey,
-                        currentPage = page,
-                        nextKey = nextKey
+                        nextKey = nextKey,
+                        page = page
                     )
-                }
-
-                if (remoteKeys != null) {
-                    localDataSource.insertAll(remoteKeys)
-                    val remotePage = movies.paginationResponse.currentPage
-                    val data = movies.artworkResponse
-                    val entity = ArtWorkEntity.mapArtWorkModel(data, remotePage)
-                    data.let {
-                        localDataSource.insertArtWork(entity)
+                    remoteKeys?.let {
+                        remoteKeysDao?.insertRemoteKeys(it)
+                        val remotePage = artworkResponse?.paginationResponse?.currentPage
+                        val response = artworkResponse?.artworkResponse
+                        if(remotePage != null && response != null) {
+                            val entity = ArtWorkEntity.mapArtWorkModel(response, remotePage)
+                            artworkDao?.insertArtWork(entity)
+                        }
                     }
                 }
+                return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
+            } else {
+                return MediatorResult.Error(Exception("error connection"))
             }
-            return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (error: IOException) {
             return MediatorResult.Error(error)
         } catch (error: HttpException) {
