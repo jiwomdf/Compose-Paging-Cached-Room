@@ -44,21 +44,21 @@ dependencies {
 
     api(project(":dependencies"))
 
+    // Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-compiler:2.48")
 
-    implementation("androidx.core:core-ktx:1.9.0")
+    // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
-    //Room
+    // Room
     val roomVersion = "2.5.2"
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation("androidx.room:room-paging:$roomVersion")
-
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
 
     testImplementation("junit:junit:4.13.2")
