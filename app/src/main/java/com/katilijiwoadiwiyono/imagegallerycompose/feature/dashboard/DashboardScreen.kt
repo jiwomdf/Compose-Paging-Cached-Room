@@ -23,6 +23,7 @@ import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -122,6 +123,9 @@ fun DashboardScreen(
                         .align(Alignment.CenterVertically)
                         .padding(end = 16.dp)
                         .height(50.dp),
+                    colors  = SwitchDefaults.colors(
+                        checkedTrackColor = Color.Red,
+                    ),
                     checked = isDark,
                     onCheckedChange = {
                         setToggleTheme(isDark)

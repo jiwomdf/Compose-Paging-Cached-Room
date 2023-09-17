@@ -21,24 +21,27 @@ class ArtIteractor @Inject constructor(
         limit: Int
     ): Resource<List<ArtWorkModel>> {
         val artworks = repository.searchArtworks(query, fetchDistance, limit)
-
-        val listArtWork = mutableListOf<ArtWorkModel>()
-        artworks.data?.forEach {
-            val artwork = repository.getArtworkById(it.id)
-            delay(100)
-            when(artwork.resourceState) {
-                is ResourceState.Success -> {
-                    artwork.data?.let {
-                        listArtWork.add(it)
+        return when (artworks.resourceState) {
+            is ResourceState.Success -> {
+                val listArtWork = mutableListOf<ArtWorkModel>()
+                artworks.data?.forEach {
+                    val artwork = repository.getArtworkById(it.id)
+                    delay(100)
+                    when(artwork.resourceState) {
+                        is ResourceState.Success -> {
+                            artwork.data?.let {
+                                listArtWork.add(it)
+                            }
+                        }
+                        else -> {}
                     }
                 }
-                else -> {}
+                return Resource(
+                    resourceState = ResourceState.Success,
+                    data = listArtWork
+                )
             }
+            else -> artworks
         }
-
-        return Resource(
-            resourceState = ResourceState.Success,
-            data = listArtWork
-        )
     }
 }
