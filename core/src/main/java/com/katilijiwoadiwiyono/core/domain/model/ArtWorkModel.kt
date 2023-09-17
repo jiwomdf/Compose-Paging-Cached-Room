@@ -2,6 +2,7 @@ package com.katilijiwoadiwiyono.core.domain.model
 
 import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkResponse
+import com.katilijiwoadiwiyono.core.utils.StringUtil.getImageUrl
 
 data class ArtWorkModel(
     val id: Double,
@@ -14,17 +15,12 @@ data class ArtWorkModel(
     companion object {
         fun mapArtWorkModel(response: ArtworkResponse): List<ArtWorkModel> {
             return response.artworkResponse.map {
-                val imageUrl = if(!it.imageId.isNullOrEmpty()) {
-                    "https://www.artic.edu/iiif/2/${it.imageId}/full/100,/0/default.jpg"
-                } else {
-                    ""
-                }
                 ArtWorkModel(
                     id = it.id,
                     title = it.title ?: "",
                     description = it.description ?: "",
                     imageId = it.imageId ?: "",
-                    imageUrl = imageUrl
+                    imageUrl = if(!it.imageId.isNullOrEmpty()) getImageUrl(it.imageId) else ""
                 )
             }
         }

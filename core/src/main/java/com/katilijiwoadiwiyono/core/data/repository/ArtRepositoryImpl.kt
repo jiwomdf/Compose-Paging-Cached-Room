@@ -1,5 +1,6 @@
 package com.katilijiwoadiwiyono.core.data.repository
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -10,7 +11,8 @@ import com.katilijiwoadiwiyono.core.data.mediator.ArtWorkMediator
 import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.utils.Resource
-import com.katilijiwoadiwiyono.core.utils.mapResponse
+import com.katilijiwoadiwiyono.core.utils.ResourceState
+import com.katilijiwoadiwiyono.core.utils.callResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -44,13 +46,13 @@ class ArtRepositoryImpl @Inject constructor(
         }
 
     override suspend fun searchArtwork(query: String, fetchDistance: Int, limit: Int): Resource<List<ArtWorkModel>> {
-        return try {
-            val response = remoteDataSource.searchArtwork(query, fetchDistance, limit)
-            response.mapResponse {
+        return callResponse(
+            call = {
+                remoteDataSource.searchArtwork(query, fetchDistance, limit)
+            },
+            mapData = {
                 ArtWorkModel.mapArtWorkModel(it)
             }
-        } catch (ex: Exception) {
-            Resource.Error(ex.message.toString())
-        }
+        )
     }
 }

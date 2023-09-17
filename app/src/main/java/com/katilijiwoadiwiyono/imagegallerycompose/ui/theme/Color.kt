@@ -33,3 +33,4 @@ val OutlineBoxGrey500 = Color(0xFFC9CDD1)
 val DividerGrey500 = Color(0xFFEAEAEA)
 
 val Red80 = Color(0xFFc00016)
+val RedOnError = Color(0xFF690005)

@@ -1,10 +1,10 @@
 package com.katilijiwoadiwiyono.core.domain.usecase
 
 import androidx.paging.PagingData
-import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.repository.ArtRepository
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.utils.Resource
+import com.katilijiwoadiwiyono.core.utils.ResourceState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

@@ -17,8 +17,8 @@ interface ArticEduApi {
     suspend fun getArtwork(@Query("page") page: Int, @Query("limit") limit: Int): Response<ArtworkResponse>
 
 
-    @GET("v1/artworks/search?q=")
-    suspend fun searchArtwork(@Query("query") query: String, @Query("page") page: Int, @Query("limit") limit: Int): Response<ArtworkResponse>
+    @GET("v1/artworks/search?")
+    suspend fun searchArtwork(@Query("q") query: String, @Query("page") page: Int, @Query("limit") limit: Int): Response<ArtworkResponse>
 
     class Creator {
         @Inject

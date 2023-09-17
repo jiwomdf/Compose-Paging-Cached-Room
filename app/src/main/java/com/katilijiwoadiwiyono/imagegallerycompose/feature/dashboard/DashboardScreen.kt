@@ -1,5 +1,6 @@
 package com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -42,8 +45,10 @@ import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PAGE_LIMIT
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PERFECT_FETCH_DISTANCE
 import com.katilijiwoadiwiyono.core.utils.Resource
+import com.katilijiwoadiwiyono.core.utils.ResourceState
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.FakeMainViewModel
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.IMainViewModel
+import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.CustomSnackbarVisuals
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.items
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.snackBarError
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.components.ListImageItem
@@ -69,22 +74,23 @@ fun DashboardScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val text by viewModel.text.collectAsState()
-    val searchResult by viewModel.searchResult
+    val searchResult by viewModel.searchResult.collectAsState()
     val debounceText by viewModel.debounceText.collectAsState("")
     val isSearchMode = debounceText.isNotEmpty()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var artWork: LazyPagingItems<ArtWorkModel>? = null
 
-    if(isSearchMode) {
-        viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE, PAGE_LIMIT)
-    } else {
+    if(!isSearchMode) {
         artWork = viewModel.getArtwork(PERFECT_FETCH_DISTANCE, PAGE_LIMIT).collectAsLazyPagingItems()
     }
 
-    LaunchedEffect(searchResult) {
+    LaunchedEffect(debounceText) {
+        Log.e("jiwomdfmdf", "DashboardScreen: called")
+        viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE, PAGE_LIMIT)
         keyboardController?.hide()
-        snackBarError(context, snackBarHostState, searchResult, "something went wrong")
+        snackBarError(context, snackBarHostState,
+            searchResult.resourceState, "something went wrong")
     }
 
     Scaffold(
@@ -100,7 +106,18 @@ fun DashboardScreen(
             )
         },
         snackbarHost = {
-            SnackbarHost(snackBarHostState)
+            SnackbarHost(hostState = snackBarHostState, snackbar = { snackbarData: SnackbarData ->
+                val customVisuals = snackbarData.visuals as? CustomSnackbarVisuals
+                if (customVisuals != null) {
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        contentColor = customVisuals.contentColor,
+                        containerColor = customVisuals.containerColor
+                    )
+                } else {
+                    Snackbar(snackbarData = snackbarData)
+                }
+            })
         }
     ) {
         Column(
@@ -110,17 +127,18 @@ fun DashboardScreen(
         ) {
 
             if(isSearchMode) {
-                when(searchResult) {
-                    is Resource.Loading -> {
+                when(searchResult.resourceState) {
+                    is ResourceState.Loading -> {
                         CircularProgressIndicator()
                     }
-                    is Resource.Success -> {
+                    is ResourceState.Success -> {
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(3)
                         ) {
-                            val data = (searchResult as Resource.Success).data
-                            items(data.size) {
-                                ListImageItem(Modifier, data[it])
+                            searchResult.data?.let { list ->
+                                items(list.size) {
+                                    ListImageItem(Modifier, list[it])
+                                }
                             }
                         }
                     }
