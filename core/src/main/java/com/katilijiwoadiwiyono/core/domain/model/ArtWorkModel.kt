@@ -14,12 +14,17 @@ data class ArtWorkModel(
     companion object {
         fun mapArtWorkModel(response: ArtworkResponse): List<ArtWorkModel> {
             return response.artworkResponse.map {
+                val imageUrl = if(!it.imageId.isNullOrEmpty()) {
+                    "https://www.artic.edu/iiif/2/${it.imageId}/full/100,/0/default.jpg"
+                } else {
+                    ""
+                }
                 ArtWorkModel(
                     id = it.id,
                     title = it.title ?: "",
                     description = it.description ?: "",
                     imageId = it.imageId ?: "",
-                    imageUrl = "https://www.artic.edu/iiif/2/${it.imageId}/full/200,/0/default.jpg"
+                    imageUrl = imageUrl
                 )
             }
         }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -29,7 +28,7 @@ fun SearchBarPreview() {
     SearchBar(
         modifier = Modifier,
         search = "",
-        onValueChange = {}
+        onValueChange = {},
     )
 }
 
@@ -37,7 +36,7 @@ fun SearchBarPreview() {
 fun SearchBar(
     modifier: Modifier,
     search: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
 ) {
     Box(
         modifier = modifier

@@ -2,6 +2,7 @@ package com.katilijiwoadiwiyono.imagegallerycompose.feature
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,13 +27,15 @@ import javax.inject.Inject
 interface IMainViewModel {
     val text: MutableStateFlow<String>
     val debounceText: Flow<String>
+    val searchResult: State<Resource<List<ArtWorkModel>>>
     fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
     fun searchArtwork(query: String, fetchDistance: Int, limit: Int)
 }
 
-class FakeMainViewModel : IMainViewModel {
+class FakeMainViewModel() : IMainViewModel {
     override val text: MutableStateFlow<String> = MutableStateFlow("")
     override val debounceText: Flow<String> = flow {  }
+    override val searchResult:State<Resource<List<ArtWorkModel>>> = mutableStateOf<Resource<List<ArtWorkModel>>>(Resource.Loading(emptyList()))
     override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> {
         return flow {  }
     }
@@ -52,7 +55,8 @@ class MainViewModel @Inject constructor(
             flowOf(it)
         }
 
-    val searchResult = mutableStateOf<Resource<List<ArtWorkModel>>>(Resource.Loading(emptyList()))
+    private var _searchResult = mutableStateOf<Resource<List<ArtWorkModel>>>(Resource.Loading(emptyList()))
+    override val searchResult: State<Resource<List<ArtWorkModel>>> = _searchResult
 
     override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> {
         Log.e("jiwomdf", "getArtwork: ")
@@ -64,9 +68,9 @@ class MainViewModel @Inject constructor(
         fetchDistance: Int,
         limit: Int
     ) {
-        Log.e("jiwomdf", "searchArtwork: $query")
+        Log.e("jiwomdf", "searchResult: $searchResult")
         viewModelScope.launch {
-            searchResult.value = useCase.searchArtwork(query, fetchDistance, limit)
+            _searchResult.value = useCase.searchArtwork(query, fetchDistance, limit)
         }
     }
 

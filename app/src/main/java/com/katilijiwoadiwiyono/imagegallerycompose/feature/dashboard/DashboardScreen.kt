@@ -16,14 +16,21 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,9 +41,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PAGE_LIMIT
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PERFECT_FETCH_DISTANCE
+import com.katilijiwoadiwiyono.core.utils.Resource
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.FakeMainViewModel
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.IMainViewModel
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.items
+import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.snackBarError
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.components.ListImageItem
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.components.SearchBar
 import com.katilijiwoadiwiyono.imagegallerycompose.ui.theme.Red80
@@ -47,20 +56,36 @@ import kotlinx.coroutines.launch
 @Composable
 fun DashboardScreenPreview() {
     DashboardScreen(
-        mainViewModel = FakeMainViewModel()
+        viewModel = FakeMainViewModel()
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DashboardScreen(
-    mainViewModel: IMainViewModel
+    viewModel: IMainViewModel
 ) {
-    val text by mainViewModel.text.collectAsState()
-    val debounceText by mainViewModel.debounceText.collectAsState("")
+    val context = LocalContext.current
+    val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val text by viewModel.text.collectAsState()
+    val searchResult by viewModel.searchResult
+    val debounceText by viewModel.debounceText.collectAsState("")
     val isSearchMode = debounceText.isNotEmpty()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-    val artWork = mainViewModel.getArtwork(PERFECT_FETCH_DISTANCE, PAGE_LIMIT).collectAsLazyPagingItems()
+    var artWork: LazyPagingItems<ArtWorkModel>? = null
+
+    if(isSearchMode) {
+        viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE, PAGE_LIMIT)
+    } else {
+        artWork = viewModel.getArtwork(PERFECT_FETCH_DISTANCE, PAGE_LIMIT).collectAsLazyPagingItems()
+    }
+
+    LaunchedEffect(searchResult) {
+        keyboardController?.hide()
+        snackBarError(context, snackBarHostState, searchResult, "something went wrong")
+    }
 
     Scaffold(
         topBar = {
@@ -69,10 +94,13 @@ fun DashboardScreen(
                 search = text,
                 onValueChange = {
                     scope.launch {
-                        mainViewModel.text.value = it
+                        viewModel.text.value = it
                     }
-                }
+                },
             )
+        },
+        snackbarHost = {
+            SnackbarHost(snackBarHostState)
         }
     ) {
         Column(
@@ -82,22 +110,38 @@ fun DashboardScreen(
         ) {
 
             if(isSearchMode) {
-                Text(text = "Mantap")
+                when(searchResult) {
+                    is Resource.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is Resource.Success -> {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3)
+                        ) {
+                            val data = (searchResult as Resource.Success).data
+                            items(data.size) {
+                                ListImageItem(Modifier, data[it])
+                            }
+                        }
+                    }
+                    else -> {
+                        Text(text = "something went wrong")
+                    }
+                }
                 return@Scaffold
             }
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3)
             ) {
-                val loadState = artWork.loadState.mediator
-                items(
-                    items = artWork,
-                    key = { it.id }
-                ) {
-                    ListImageItem(Modifier, it)
-                }
-                item {
-                    PagingLoadingState(Modifier, loadState, artWork)
+                artWork?.let {
+                    val loadState = artWork.loadState.mediator
+                    items(artWork, { it.id }) {
+                        ListImageItem(Modifier, it)
+                    }
+                    item {
+                        PagingLoadingState(Modifier, loadState, artWork)
+                    }
                 }
             }
         }
@@ -127,7 +171,9 @@ fun PagingLoadingState(
 
     if (loadState?.append == LoadState.Loading) {
         Box(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(color = Red80)
