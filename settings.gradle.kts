@@ -16,4 +16,3 @@ dependencyResolutionManagement {
 rootProject.name = "Image Gallery Compose"
 include(":app")
 include(":core")
-include(":dependencies")

@@ -85,7 +85,7 @@ fun DashboardScreen(
     val debounceText by viewModel.debounceText.collectAsState("")
     val searchResult by viewModel.searchResult.collectAsState()
     val isSearchLoading by viewModel.isSearchLoading.collectAsState()
-    val isSearchMode = debounceText.isNotEmpty()
+    val isSearchMode = text.isNotEmpty()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var artWork: LazyPagingItems<ArtWorkModel>? = null

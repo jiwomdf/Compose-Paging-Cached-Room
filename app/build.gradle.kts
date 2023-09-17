@@ -55,7 +55,6 @@ android {
 
 dependencies {
 
-    api(project(":dependencies"))
     implementation(project(":core"))
 
     implementation("androidx.core:core-ktx:1.12.0")
