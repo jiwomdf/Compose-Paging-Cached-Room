@@ -23,8 +23,11 @@ class ArtIteractor @Inject constructor(
         val artworks = repository.searchArtworks(query, fetchDistance, limit)
         return when (artworks.resourceState) {
             is ResourceState.Success -> {
+                if(artworks.data.isNullOrEmpty())
+                    return artworks
+
                 val listArtWork = mutableListOf<ArtWorkModel>()
-                artworks.data?.forEach {
+                artworks.data.forEach {
                     val artwork = repository.getArtworkById(it.id)
                     delay(100)
                     when(artwork.resourceState) {

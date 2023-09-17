@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
 @Composable
@@ -20,9 +21,11 @@ fun CenterText(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
             text = message,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            textAlign = TextAlign.Center
         )
     }
 }
