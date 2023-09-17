@@ -1,14 +1,12 @@
 package com.katilijiwoadiwiyono.core.data.repository
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import androidx.room.RoomDatabase
 import com.katilijiwoadiwiyono.core.data.local.ImageGalleryRoom
-import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
-import com.katilijiwoadiwiyono.core.data.local.source.LocalDataSource
 import com.katilijiwoadiwiyono.core.data.mediator.ArtWorkMediator
 import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
@@ -23,7 +21,7 @@ class ArtRepositoryImpl @Inject constructor(
 ): ArtRepository {
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
+    override fun getArtwork(query: String, page: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
         Pager(
             config = PagingConfig(
                 pageSize = PagingUtil.PAGE_SIZE,
@@ -36,10 +34,12 @@ class ArtRepositoryImpl @Inject constructor(
             remoteMediator = ArtWorkMediator(
                 database,
                 remoteDataSource,
-                PagingUtil.PAGE_SIZE
+                PagingUtil.PAGE_SIZE,
+                query
             )
         ).flow.map { pagingData ->
             pagingData.map out@{ userEntity ->
+                Log.e("jiwo", "getArtwork: $userEntity", )
                 return@out ArtWorkModel.mapArtWorkModel(userEntity)
             }
         }

@@ -60,7 +60,7 @@ data class ArtworkResponse(
         @SerializedName("has_educational_resources") val hasEducationalResources: Boolean?,
         @SerializedName("has_multimedia_resources") val hasMultimediaResources: Boolean?,
         @SerializedName("has_not_been_viewed_much") val hasNotBeenViewedMuch: Boolean?,
-        @SerializedName("id") val id: Double?,
+        @SerializedName("id") val id: Double,
         @SerializedName("image_id") val imageId: String?,
         @SerializedName("inscriptions") val inscriptions: String?,
         @SerializedName("internal_department_id") val internalDepartmentId: Double?,

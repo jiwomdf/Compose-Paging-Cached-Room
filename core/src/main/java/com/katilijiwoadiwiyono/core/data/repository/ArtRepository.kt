@@ -6,5 +6,5 @@ import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import kotlinx.coroutines.flow.Flow
 
 interface ArtRepository {
-    fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
+    fun getArtwork(query: String, page: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
 }

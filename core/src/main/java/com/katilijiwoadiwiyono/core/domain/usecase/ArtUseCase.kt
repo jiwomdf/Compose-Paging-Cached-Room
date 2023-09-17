@@ -7,4 +7,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface ArtUseCase {
     fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
+    fun searchArtwork(query: String, page: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
 }

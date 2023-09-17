@@ -5,17 +5,13 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
-import androidx.room.RoomDatabase
 import androidx.room.withTransaction
 import com.katilijiwoadiwiyono.core.data.local.ImageGalleryRoom
 import com.katilijiwoadiwiyono.core.data.local.dao.ArtWorkDao
 import com.katilijiwoadiwiyono.core.data.local.dao.RemoteKeysDao
 import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeysEntity
-import com.katilijiwoadiwiyono.core.data.local.source.LocalDataSource
 import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
-import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
-import com.katilijiwoadiwiyono.core.utils.PagingUtil
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyClosestToCurrentPosition
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyForFirstItem
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyForLastItem
@@ -27,7 +23,8 @@ import java.util.concurrent.TimeUnit
 class ArtWorkMediator(
     private val database: ImageGalleryRoom,
     private val remoteDataSource: RemoteDataSource,
-    private val pageLimit: Int
+    private val pageLimit: Int,
+    private val query: String
 ) : RemoteMediator<Int, ArtWorkEntity>() {
 
     private var artworkDao: ArtWorkDao? = null
@@ -84,8 +81,14 @@ class ArtWorkMediator(
         }
 
         try {
-            Log.e("jiwo", "load: $page", ) //TODO JIWO
-            val apiResponse = remoteDataSource.getArtwork(page = page, pageLimit)
+            Log.e("jiwo", "load: $page query: $query") //TODO JIWO
+            val apiResponse =
+                if(query.isEmpty()) {
+                    remoteDataSource.getArtwork(page = page, pageLimit)
+                } else {
+                    remoteDataSource.searchArtwork(query, page, pageLimit)
+                }
+
 
             if(apiResponse.isSuccessful) {
                 val artworkResponse = apiResponse.body()
@@ -110,6 +113,11 @@ class ArtWorkMediator(
                         val response = artworkResponse?.artworkResponse
                         if(remotePage != null && response != null) {
                             val entity = ArtWorkEntity.mapArtWorkModel(response, remotePage)
+
+                            //TODO JIWO
+                            Log.e("jiwo", "getArtwork load: ${entity.size}")
+
+
                             artworkDao?.insertArtWork(entity)
                         }
                     }

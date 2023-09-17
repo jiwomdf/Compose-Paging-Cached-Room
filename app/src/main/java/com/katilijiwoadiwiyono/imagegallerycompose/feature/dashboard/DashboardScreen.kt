@@ -46,7 +46,12 @@ fun DashboardScreenPreview() {
 fun DashboardScreen(
     mainViewModel: IMainViewModel
 ) {
-    val artWork = mainViewModel.getArtwork(1, 15).collectAsLazyPagingItems()
+    val query = ""
+    val artWork = if(query.isEmpty()){
+        mainViewModel.getArtwork(1, 15).collectAsLazyPagingItems()
+    } else {
+        mainViewModel.searchArtwork(query, 1, 15).collectAsLazyPagingItems()
+    }
 
     Scaffold(
         topBar = {
@@ -67,7 +72,7 @@ fun DashboardScreen(
             ) {
                 items(
                     items = artWork,
-                    key = { it.imageId }
+                    key = { it.id }
                 ) {
                     ListImageItem(
                         modifier = Modifier,

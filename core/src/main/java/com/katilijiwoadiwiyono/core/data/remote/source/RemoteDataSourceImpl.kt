@@ -12,4 +12,12 @@ class RemoteDataSourceImpl @Inject constructor(
     override suspend fun getArtwork(page: Int, limit: Int): Response<ArtworkResponse> {
         return articEduApi.getArtwork(page, limit)
     }
+
+    override suspend fun searchArtwork(
+        query: String,
+        page: Int,
+        limit: Int
+    ): Response<ArtworkResponse> {
+        return articEduApi.searchArtwork(query, page, limit)
+    }
 }

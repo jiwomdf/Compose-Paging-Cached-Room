@@ -5,4 +5,5 @@ import retrofit2.Response
 
 interface RemoteDataSource {
     suspend fun getArtwork(page: Int, limit: Int): Response<ArtworkResponse>
+    suspend fun searchArtwork(query: String, page: Int, limit: Int): Response<ArtworkResponse>
 }
