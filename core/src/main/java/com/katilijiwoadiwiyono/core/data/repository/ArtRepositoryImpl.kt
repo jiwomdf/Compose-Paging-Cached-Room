@@ -1,6 +1,5 @@
 package com.katilijiwoadiwiyono.core.data.repository
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -11,7 +10,6 @@ import com.katilijiwoadiwiyono.core.data.mediator.ArtWorkMediator
 import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.utils.Resource
-import com.katilijiwoadiwiyono.core.utils.ResourceState
 import com.katilijiwoadiwiyono.core.utils.callResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -23,7 +21,7 @@ class ArtRepositoryImpl @Inject constructor(
 ): ArtRepository {
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
+    override fun getArtworks(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
         Pager(
             config = PagingConfig(
                 pageSize = limit,
@@ -44,10 +42,21 @@ class ArtRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun searchArtwork(query: String, fetchDistance: Int, limit: Int): Resource<List<ArtWorkModel>> {
+    override suspend fun searchArtworks(query: String, fetchDistance: Int, limit: Int): Resource<List<ArtWorkModel>> {
         return callResponse(
             call = {
-                remoteDataSource.searchArtwork(query, fetchDistance, limit)
+                remoteDataSource.searchArtworks(query, fetchDistance, limit)
+            },
+            mapData = {
+                ArtWorkModel.mapArtWorkModel(it)
+            }
+        )
+    }
+
+    override suspend fun getArtworkById(id: Double): Resource<ArtWorkModel> {
+        return callResponse(
+            call = {
+               remoteDataSource.getArtworkById(id)
             },
             mapData = {
                 ArtWorkModel.mapArtWorkModel(it)

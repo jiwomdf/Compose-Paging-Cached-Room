@@ -2,4 +2,6 @@
     <string name="app_name">Image Gallery Compose</string>
     <string name="error_unknown_host">Please check your connection</string>
     <string name="error_403_forbidden">Invalid number of results. Please refine your query.</string>
+    <string name="result_empty">The result is empty, please try another query</string>
+    <string name="something_went_wrong">something went wrong</string>
 </resources>

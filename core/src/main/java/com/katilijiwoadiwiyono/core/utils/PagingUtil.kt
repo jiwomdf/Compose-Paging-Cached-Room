@@ -6,6 +6,10 @@ import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeysEntity
 
 object PagingUtil {
+
+    const val PAGE_LIMIT_SEARCH = 20
+    const val PERFECT_FETCH_DISTANCE_SEARCH = 10
+
     const val FIRST_PAGE = 1
     const val PAGE_LIMIT = 50
     const val PERFECT_FETCH_DISTANCE = 40

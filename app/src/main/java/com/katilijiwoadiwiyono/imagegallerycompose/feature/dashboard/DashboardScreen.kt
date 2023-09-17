@@ -45,10 +45,14 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PAGE_LIMIT
+import com.katilijiwoadiwiyono.core.utils.PagingUtil.PAGE_LIMIT_SEARCH
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PERFECT_FETCH_DISTANCE
+import com.katilijiwoadiwiyono.core.utils.PagingUtil.PERFECT_FETCH_DISTANCE_SEARCH
 import com.katilijiwoadiwiyono.core.utils.ResourceState
+import com.katilijiwoadiwiyono.imagegallerycompose.R
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.FakeMainViewModel
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.IMainViewModel
+import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.CenterText
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.SnackbarErrorVisuals
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.darkModeState
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.items
@@ -77,8 +81,8 @@ fun DashboardScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val text by viewModel.text.collectAsState()
-    val searchResult by viewModel.searchResult.collectAsState()
     val debounceText by viewModel.debounceText.collectAsState("")
+    val searchResult by viewModel.searchResult.collectAsState()
     val isSearchMode = debounceText.isNotEmpty()
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -89,7 +93,7 @@ fun DashboardScreen(
     }
 
     LaunchedEffect(debounceText) {
-        viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE, PAGE_LIMIT)
+        viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE_SEARCH, PAGE_LIMIT_SEARCH)
         keyboardController?.hide()
         snackBarError(context, snackBarHostState,
             searchResult.resourceState, "something went wrong")
@@ -146,26 +150,27 @@ fun DashboardScreen(
         ) {
 
             if(isSearchMode) {
+                if(searchResult.data != null && searchResult.data?.isEmpty() == true) {
+                    CenterText(context.getString(R.string.result_empty))
+                    return@Scaffold
+                }
+
                 when(searchResult.resourceState) {
-                    is ResourceState.Loading -> {
-                        CircularProgressIndicator()
-                    }
+                    is ResourceState.Loading -> {}
                     is ResourceState.Success -> {
                         LazyVerticalGrid(
-                            columns = GridCells.Fixed(1)
+                            columns = GridCells.Fixed(3)
                         ) {
                             if(!searchResult.data.isNullOrEmpty()) {
                                 val list = searchResult.data ?: emptyList()
                                 items(list.size) {
                                     ListImageItem(Modifier, list[it])
                                 }
-                            } else {
-
                             }
                         }
                     }
                     else -> {
-                        Text(text = "something went wrong")
+                        CenterText(context.getString(R.string.something_went_wrong))
                     }
                 }
                 return@Scaffold
@@ -244,12 +249,7 @@ fun PagingLoadingState(
                 )
             }
 
-            Text(
-                modifier = Modifier
-                    .padding(8.dp),
-                text = error.message ?: error.toString(),
-                textAlign = TextAlign.Center,
-            )
+            CenterText(error.message ?: error.toString())
 
             Button(
                 onClick = {

@@ -7,6 +7,7 @@ import com.katilijiwoadiwiyono.core.utils.ResourceState
 import kotlinx.coroutines.flow.Flow
 
 interface ArtRepository {
-    fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
-    suspend fun searchArtwork(query: String, fetchDistance: Int, limit: Int): Resource<List<ArtWorkModel>>
+    fun getArtworks(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
+    suspend fun searchArtworks(query: String, fetchDistance: Int, limit: Int): Resource<List<ArtWorkModel>>
+    suspend fun getArtworkById(id: Double): Resource<ArtWorkModel>
 }
