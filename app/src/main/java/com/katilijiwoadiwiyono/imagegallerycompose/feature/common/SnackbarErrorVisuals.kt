@@ -4,7 +4,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.ui.graphics.Color
 
-data class CustomSnackbarVisuals(
+data class SnackbarErrorVisuals(
     override val message: String,
     override val duration: SnackbarDuration = SnackbarDuration.Short,
     val containerColor: Color = Color.White,

@@ -20,15 +20,15 @@ suspend fun snackBarError(
         is ResourceState.HttpErrors.BadGateWay -> resourceState.exception
         is ResourceState.HttpErrors.InternalServerError -> resourceState.exception
         is ResourceState.HttpErrors.RemovedResourceFoundState -> resourceState.exception
-        is ResourceState.HttpErrors.Forbidden -> resourceState.exception
+        is ResourceState.HttpErrors.Forbidden -> context.getString(R.string.error_403_forbidden)
         is ResourceState.HttpErrors.NotFound -> resourceState.exception
         is ResourceState.HttpErrors.Removed -> resourceState.exception
         is ResourceState.Error.GeneralError -> resourceState.exception
         is ResourceState.HttpErrors.ResponseEmpty -> resourceState.exception
         is ResourceState.Error.UnknownHost -> context.getString(R.string.error_unknown_host)
     }
-    message?.let {
-        snackBarHostState.showSnackbar(CustomSnackbarVisuals(
+    if(!message.isNullOrEmpty()){
+        snackBarHostState.showSnackbar(SnackbarErrorVisuals(
             message = message,
             containerColor = RedOnError,
             contentColor = White,

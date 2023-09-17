@@ -1,9 +1,5 @@
 package com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard
 
-import android.util.Log
-import android.widget.ToggleButton
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,10 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,12 +46,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PAGE_LIMIT
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PERFECT_FETCH_DISTANCE
-import com.katilijiwoadiwiyono.core.utils.Resource
 import com.katilijiwoadiwiyono.core.utils.ResourceState
-import com.katilijiwoadiwiyono.imagegallerycompose.R
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.FakeMainViewModel
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.IMainViewModel
-import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.CustomSnackbarVisuals
+import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.SnackbarErrorVisuals
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.darkModeState
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.items
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.setToggleTheme
@@ -93,7 +85,6 @@ fun DashboardScreen(
     var artWork: LazyPagingItems<ArtWorkModel>? = null
 
     if(!isSearchMode) {
-        Log.e("jiwomdf", "getArtwork: called!!")
         artWork = viewModel.getArtwork(PERFECT_FETCH_DISTANCE, PAGE_LIMIT).collectAsLazyPagingItems()
     }
 
@@ -108,8 +99,7 @@ fun DashboardScreen(
         topBar = {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 16.dp),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 val isDark = darkModeState.value
@@ -129,13 +119,14 @@ fun DashboardScreen(
                         .height(50.dp),
                     checked = isDark,
                     onCheckedChange = {
-                    setToggleTheme(isDark)
-                })
+                        setToggleTheme(isDark)
+                    }
+                )
             }
         },
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState, snackbar = { snackbarData: SnackbarData ->
-                val customVisuals = snackbarData.visuals as? CustomSnackbarVisuals
+                val customVisuals = snackbarData.visuals as? SnackbarErrorVisuals
                 if (customVisuals != null) {
                     Snackbar(
                         snackbarData = snackbarData,
