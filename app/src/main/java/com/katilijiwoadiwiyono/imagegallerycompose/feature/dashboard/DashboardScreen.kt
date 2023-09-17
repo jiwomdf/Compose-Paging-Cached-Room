@@ -122,7 +122,7 @@ fun DashboardScreen(
                 Switch(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .padding(end = 16.dp)
+                        .padding(end = 20.dp)
                         .height(50.dp),
                     colors  = SwitchDefaults.colors(
                         checkedTrackColor = Color.Red,
