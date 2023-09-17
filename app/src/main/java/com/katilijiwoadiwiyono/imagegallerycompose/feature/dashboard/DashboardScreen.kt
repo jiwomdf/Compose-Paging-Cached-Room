@@ -8,15 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
@@ -37,8 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.compose.LazyPagingItems
@@ -95,8 +93,11 @@ fun DashboardScreen(
     }
 
     LaunchedEffect(debounceText) {
-        viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE_SEARCH, PAGE_LIMIT_SEARCH)
         keyboardController?.hide()
+        viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE_SEARCH, PAGE_LIMIT_SEARCH)
+    }
+
+    LaunchedEffect(debounceText) {
         snackBarError(context, snackBarHostState,
             searchResult.resourceState, "something went wrong")
     }
@@ -208,24 +209,11 @@ fun PagingLoadingState(
     loadState: LoadStates?,
     artWork: LazyPagingItems<ArtWorkModel>
 ) {
-    if (loadState?.refresh == LoadState.Loading) {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text = "Refresh Loading"
-            )
-            CircularProgressIndicator(color = Red80)
-        }
-    }
-
-    if (loadState?.append == LoadState.Loading) {
+    val isRefreshLoading = loadState?.refresh == LoadState.Loading
+    if (isRefreshLoading) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = modifier
+                .fillMaxSize()
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -233,33 +221,41 @@ fun PagingLoadingState(
         }
     }
 
-    if (loadState?.refresh is LoadState.Error || loadState?.append is LoadState.Error) {
-        val isPaginatingError = (loadState.append is LoadState.Error) || artWork.itemCount > 1
-        val error = if (loadState.append is LoadState.Error)
-            (loadState.append as LoadState.Error).error
-        else
-            (loadState.refresh as LoadState.Error).error
-
-        val modifier = if (isPaginatingError) {
-            Modifier.padding(8.dp)
-        } else {
-            Modifier.fillMaxSize()
+    val isAppendLoading = loadState?.append == LoadState.Loading
+    if (isAppendLoading) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Red80)
         }
+    }
+
+    val ifRefreshError = loadState?.refresh is LoadState.Error
+    val ifAppendError = loadState?.append is LoadState.Error
+    if (ifRefreshError || ifAppendError) {
+        val error = loadState?.let {
+            if (it.append is LoadState.Error) {
+                (it.append as LoadState.Error).error
+            } else {
+                (it.refresh as LoadState.Error).error
+            }
+        }
+
         Column(
-            modifier = modifier,
+            modifier = modifier.padding(8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (!isPaginatingError) {
-                Icon(
-                    modifier = Modifier.size(64.dp),
-                    imageVector = Icons.Rounded.Warning, contentDescription = null
-                )
-            }
-
-            CenterText(error.message ?: error.toString())
-
+            Text(
+                text = error?.message ?: error.toString(),
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center
+            )
             Button(
+                modifier = modifier.padding(top = 4.dp),
                 onClick = {
                     artWork.refresh()
                 },
@@ -268,6 +264,7 @@ fun PagingLoadingState(
                 },
                 colors = ButtonDefaults.buttonColors(
                     contentColor = Color.White,
+                    containerColor = Red80
                 )
             )
         }
