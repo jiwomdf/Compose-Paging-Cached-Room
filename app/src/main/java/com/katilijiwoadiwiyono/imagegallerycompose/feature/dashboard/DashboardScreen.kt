@@ -1,11 +1,16 @@
 package com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard
 
 import android.util.Log
+import android.widget.ToggleButton
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,6 +26,7 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,8 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,10 +54,13 @@ import com.katilijiwoadiwiyono.core.utils.PagingUtil.PAGE_LIMIT
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PERFECT_FETCH_DISTANCE
 import com.katilijiwoadiwiyono.core.utils.Resource
 import com.katilijiwoadiwiyono.core.utils.ResourceState
+import com.katilijiwoadiwiyono.imagegallerycompose.R
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.FakeMainViewModel
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.IMainViewModel
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.CustomSnackbarVisuals
+import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.darkModeState
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.items
+import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.setToggleTheme
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.common.snackBarError
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.components.ListImageItem
 import com.katilijiwoadiwiyono.imagegallerycompose.feature.dashboard.components.SearchBar
@@ -82,11 +93,11 @@ fun DashboardScreen(
     var artWork: LazyPagingItems<ArtWorkModel>? = null
 
     if(!isSearchMode) {
+        Log.e("jiwomdf", "getArtwork: called!!")
         artWork = viewModel.getArtwork(PERFECT_FETCH_DISTANCE, PAGE_LIMIT).collectAsLazyPagingItems()
     }
 
     LaunchedEffect(debounceText) {
-        Log.e("jiwomdfmdf", "DashboardScreen: called")
         viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE, PAGE_LIMIT)
         keyboardController?.hide()
         snackBarError(context, snackBarHostState,
@@ -95,15 +106,32 @@ fun DashboardScreen(
 
     Scaffold(
         topBar = {
-            SearchBar(
-                modifier = Modifier,
-                search = text,
-                onValueChange = {
-                    scope.launch {
-                        viewModel.text.value = it
-                    }
-                },
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val isDark = darkModeState.value
+                SearchBar(
+                    modifier = Modifier,
+                    search = text,
+                    onValueChange = {
+                        scope.launch {
+                            viewModel.text.value = it
+                        }
+                    },
+                )
+                Switch(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 16.dp)
+                        .height(50.dp),
+                    checked = isDark,
+                    onCheckedChange = {
+                    setToggleTheme(isDark)
+                })
+            }
         },
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState, snackbar = { snackbarData: SnackbarData ->

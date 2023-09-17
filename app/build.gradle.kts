@@ -27,8 +27,6 @@ android {
                 argument("room.schemaLocation", "$projectDir/schemas")
             }
         }
-
-
     }
 
     buildTypes {

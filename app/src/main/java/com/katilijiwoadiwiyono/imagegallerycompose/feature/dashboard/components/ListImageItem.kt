@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -56,62 +58,46 @@ fun ListImageItem(
     Column(
         modifier = modifier
             .padding(6.dp)
+            .clip(RoundedCornerShape(8.dp)),
     ) {
-        Card {
-            Box {
-                val isImageEmpty = artWork?.imageUrl.isNullOrEmpty()
-                if(!isImageEmpty) {
-                    SubcomposeAsyncImage(
-                        modifier = Modifier
-                            .height(200.dp)
-                            .fillMaxWidth()
-                            .background(BackgroundGrey500),
-                        model = ImageRequest.Builder(context)
-                            .data(artWork?.imageUrl)
-                            .size(Size.ORIGINAL)
-                            .build(),
-                        loading = {},
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
-                        imageLoader = ImageLoader.Builder(context)
-                            .memoryCache {
-                                MemoryCache.Builder(context)
-                                    .maxSizePercent(0.25)
-                                    .build()
-                            }
-                            .diskCache {
-                                DiskCache.Builder()
-                                    .directory(context.cacheDir.resolve("image_cache"))
-                                    .maxSizePercent(0.02)
-                                    .build()
-                            }
-                            .build()
-                    )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .height(200.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Image not\nfound",
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                }
-                Text(
+        Box {
+            val isImageEmpty = artWork?.imageUrl.isNullOrEmpty()
+            if(!isImageEmpty) {
+                SubcomposeAsyncImage(
                     modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 4.dp, bottom = 4.dp, end = 8.dp),
-                    text = (artWork?.title ?: "").subStrTitle(),
-                    fontSize = 13.sp,
-                    maxLines = 1
+                        .height(140.dp)
+                        .fillMaxWidth()
+                        .background(BackgroundGrey500),
+                    model = ImageRequest.Builder(context)
+                        .data(artWork?.imageUrl)
+                        .size(Size.ORIGINAL)
+                        .build(),
+                    loading = {},
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop
                 )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .height(140.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Image not\nfound",
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
-
+            Text(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 4.dp, bottom = 4.dp, end = 8.dp),
+                text = (artWork?.title ?: "").subStrTitle(),
+                fontSize = 13.sp,
+                maxLines = 1
+            )
         }
-
     }
 }

@@ -11,6 +11,8 @@ import com.katilijiwoadiwiyono.core.data.local.dao.RemoteKeysDao
 import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeysEntity
 import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
+import com.katilijiwoadiwiyono.core.utils.PagingUtil.ERROR_CONNECTION_MESSAGE
+import com.katilijiwoadiwiyono.core.utils.PagingUtil.FIRST_PAGE
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyClosestToCurrentPosition
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyForFirstItem
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.getRemoteKeyForLastItem
@@ -51,14 +53,12 @@ class ArtWorkMediator(
     ): MediatorResult {
         val page: Int = when (loadType) {
             LoadType.REFRESH -> {
-                //New Query so clear the DB
                 val remoteKeys = remoteKeysDao.getRemoteKeyClosestToCurrentPosition(state)
-                val lastPage = remoteKeys?.nextKey?.minus(1) ?: 1
+                val lastPage = remoteKeys?.nextKey?.minus(1) ?: FIRST_PAGE
                 lastPage
             }
             LoadType.PREPEND -> {
                 val remoteKeys = remoteKeysDao.getRemoteKeyForFirstItem(state)
-                // If remoteKeys is null, that means the refresh result is not in the database yet.
                 val prevKey = remoteKeys?.prevKey
                 val isReachEndOfPagination = remoteKeys != null
                 val result = prevKey ?: return MediatorResult.Success(endOfPaginationReached = isReachEndOfPagination)
@@ -66,21 +66,15 @@ class ArtWorkMediator(
             }
             LoadType.APPEND -> {
                 val remoteKeys = remoteKeysDao.getRemoteKeyForLastItem(state)
-
-                // If remoteKeys is null, that means the refresh result is not in the database yet.
-                // We can return Success with endOfPaginationReached = false because Paging
-                // will call this method again if RemoteKeys becomes non-null.
-                // If remoteKeys is NOT NULL but its nextKey is null, that means we've reached
-                // the end of pagination for append.
                 val nextKey = remoteKeys?.nextKey
                 val isReachEndOfPagination = remoteKeys != null
-                nextKey ?: return MediatorResult.Success(endOfPaginationReached = isReachEndOfPagination)
+                val result = nextKey ?: return MediatorResult.Success(endOfPaginationReached = isReachEndOfPagination)
+                result
             }
         }
 
         try {
             val apiResponse = remoteDataSource.getArtwork(page = page, pageLimit)
-
             if(apiResponse.isSuccessful) {
                 val artworkResponse = apiResponse.body()
                 val endOfPaginationReached = artworkResponse?.artworkResponse.isNullOrEmpty()
@@ -90,12 +84,10 @@ class ArtWorkMediator(
                         remoteKeysDao?.clearRemoteKeys()
                         artworkDao?.clearAllArtWork()
                     }
-                    val prevKey = if (page > 1) page - 1 else null
-                    val nextKey = if (endOfPaginationReached) null else page + 1
                     val remoteKeys = RemoteKeysEntity.mapRemoteKeysEntity(
                         response = artworkResponse?.artworkResponse,
-                        prevKey = prevKey,
-                        nextKey = nextKey,
+                        prevKey = if (page > FIRST_PAGE) page - 1 else null,
+                        nextKey = if (endOfPaginationReached) null else page + 1,
                         page = page
                     )
                     remoteKeys?.let {
@@ -108,9 +100,9 @@ class ArtWorkMediator(
                         }
                     }
                 }
-                return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
+                return MediatorResult.Success(endOfPaginationReached = false)
             } else {
-                return MediatorResult.Error(Exception("error connection"))
+                return MediatorResult.Error(Exception(ERROR_CONNECTION_MESSAGE))
             }
         } catch (error: IOException) {
             return MediatorResult.Error(error)

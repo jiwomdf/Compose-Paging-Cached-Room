@@ -6,30 +6,33 @@ import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeysEntity
 
 object PagingUtil {
-    const val PAGE_LIMIT = 15
-    const val PERFECT_FETCH_DISTANCE = 10
+    const val FIRST_PAGE = 1
+    const val PAGE_LIMIT = 50
+    const val PERFECT_FETCH_DISTANCE = 40
+
+    const val ERROR_CONNECTION_MESSAGE = "error connection"
 
     suspend fun RemoteKeysDao?.getRemoteKeyForLastItem(
         state: PagingState<Int, ArtWorkEntity>
     ): RemoteKeysEntity? {
         val lastPageSourceData = state.pages.lastOrNull { it.data.isNotEmpty() } ?: return null
-        val lastImageId = lastPageSourceData.data.lastOrNull()?.imageId ?: return null
-        return this?.getRemoteKeyByImageId(lastImageId)
+        val lastId = lastPageSourceData.data.lastOrNull()?.id ?: return null
+        return this?.getRemoteKeyById(lastId)
     }
 
     suspend fun RemoteKeysDao?.getRemoteKeyForFirstItem(
         state: PagingState<Int, ArtWorkEntity>
     ): RemoteKeysEntity? {
         val lastPageSourceData = state.pages.firstOrNull { it.data.isNotEmpty() } ?: return null
-        val firstImageId = lastPageSourceData.data.firstOrNull()?.imageId ?: return null
-        return this?.getRemoteKeyByImageId(firstImageId)
+        val firstId = lastPageSourceData.data.firstOrNull()?.id ?: return null
+        return this?.getRemoteKeyById(firstId)
     }
 
     suspend fun RemoteKeysDao?.getRemoteKeyClosestToCurrentPosition(
         state: PagingState<Int, ArtWorkEntity>
     ): RemoteKeysEntity? {
         val anchorPosition = state.anchorPosition ?: return null
-        val closestImageId = state.closestItemToPosition(anchorPosition)?.imageId ?: return null
-        return this?.getRemoteKeyByImageId(closestImageId)
+        val closestId = state.closestItemToPosition(anchorPosition)?.id ?: return null
+        return this?.getRemoteKeyById(closestId)
     }
 }

@@ -45,8 +45,7 @@ fun SearchBar(
             .border(border = BorderStroke(1.dp, md_theme_light_primary), shape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 16.dp))
     ) {
         TextField(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = modifier,
             value = search,
             onValueChange = onValueChange,
             maxLines = 1,
