@@ -1,6 +1,5 @@
 package com.katilijiwoadiwiyono.core.data.repository
 
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -10,7 +9,8 @@ import com.katilijiwoadiwiyono.core.data.local.ImageGalleryRoom
 import com.katilijiwoadiwiyono.core.data.mediator.ArtWorkMediator
 import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
-import com.katilijiwoadiwiyono.core.utils.PagingUtil
+import com.katilijiwoadiwiyono.core.utils.Resource
+import com.katilijiwoadiwiyono.core.utils.mapResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -21,26 +21,36 @@ class ArtRepositoryImpl @Inject constructor(
 ): ArtRepository {
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getArtwork(query: String, page: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
+    override fun getArtwork(query: String, fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> =
         Pager(
             config = PagingConfig(
-                pageSize = PagingUtil.PAGE_SIZE,
-                prefetchDistance = 10,
-                initialLoadSize = PagingUtil.PAGE_SIZE, // How many items you want to load initially
+                pageSize = limit,
+                prefetchDistance = fetchDistance,
+                initialLoadSize = limit, // How many items you want to load initially
             ),
             pagingSourceFactory = {
                 database.artWorkDao().getArtWork()
             },
             remoteMediator = ArtWorkMediator(
-                database,
-                remoteDataSource,
-                PagingUtil.PAGE_SIZE,
-                query
+                database = database,
+                remoteDataSource = remoteDataSource,
+                pageLimit = limit,
+                query = query
             )
         ).flow.map { pagingData ->
             pagingData.map out@{ userEntity ->
-                Log.e("jiwo", "getArtwork: $userEntity", )
                 return@out ArtWorkModel.mapArtWorkModel(userEntity)
             }
         }
+
+    override suspend fun searchArtwork(query: String, fetchDistance: Int, limit: Int): Resource<List<ArtWorkModel>> {
+        return try {
+            val response = remoteDataSource.searchArtwork(query, fetchDistance, limit)
+            response.mapResponse {
+                ArtWorkModel.mapArtWorkModel(it)
+            }
+        } catch (ex: Exception) {
+            Resource.Error(ex.message.toString())
+        }
+    }
 }

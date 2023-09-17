@@ -39,8 +39,8 @@ class ArtWorkMediator(
     override suspend fun initialize(): InitializeAction {
         val cacheTimeout = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS)
         val timeHasSpentSinceLastInsert = System.currentTimeMillis() - (remoteKeysDao?.getCreationTime() ?: 0)
-        val isHasTimeOut = timeHasSpentSinceLastInsert < cacheTimeout
-        return if (isHasTimeOut) {
+        val isHasNotTimeOut = timeHasSpentSinceLastInsert < cacheTimeout
+        return if (isHasNotTimeOut) {
             InitializeAction.SKIP_INITIAL_REFRESH
         } else {
             InitializeAction.LAUNCH_INITIAL_REFRESH
@@ -81,14 +81,12 @@ class ArtWorkMediator(
         }
 
         try {
-            Log.e("jiwo", "load: $page query: $query") //TODO JIWO
             val apiResponse =
                 if(query.isEmpty()) {
                     remoteDataSource.getArtwork(page = page, pageLimit)
                 } else {
                     remoteDataSource.searchArtwork(query, page, pageLimit)
                 }
-
 
             if(apiResponse.isSuccessful) {
                 val artworkResponse = apiResponse.body()
@@ -113,11 +111,6 @@ class ArtWorkMediator(
                         val response = artworkResponse?.artworkResponse
                         if(remotePage != null && response != null) {
                             val entity = ArtWorkEntity.mapArtWorkModel(response, remotePage)
-
-                            //TODO JIWO
-                            Log.e("jiwo", "getArtwork load: ${entity.size}")
-
-
                             artworkDao?.insertArtWork(entity)
                         }
                     }

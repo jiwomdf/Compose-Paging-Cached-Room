@@ -12,6 +12,17 @@ data class ArtWorkModel(
 ) {
 
     companion object {
+        fun mapArtWorkModel(response: ArtworkResponse): List<ArtWorkModel> {
+            return response.artworkResponse.map {
+                ArtWorkModel(
+                    id = it.id,
+                    title = it.title ?: "",
+                    description = it.description ?: "",
+                    imageId = it.imageId ?: "",
+                    imageUrl = "https://www.artic.edu/iiif/2/${it.imageId}/full/200,/0/default.jpg"
+                )
+            }
+        }
 
         fun mapArtWorkModel(entity: ArtWorkEntity): ArtWorkModel {
             return ArtWorkModel(

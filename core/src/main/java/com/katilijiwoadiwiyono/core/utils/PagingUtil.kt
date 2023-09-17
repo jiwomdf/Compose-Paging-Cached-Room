@@ -6,7 +6,8 @@ import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.local.entity.RemoteKeysEntity
 
 object PagingUtil {
-    const val PAGE_SIZE = 15
+    const val PAGE_LIMIT = 15
+    const val PERFECT_FETCH_DISTANCE = 10
 
     suspend fun RemoteKeysDao?.getRemoteKeyForLastItem(
         state: PagingState<Int, ArtWorkEntity>

@@ -4,21 +4,22 @@ import androidx.paging.PagingData
 import com.katilijiwoadiwiyono.core.data.local.entity.ArtWorkEntity
 import com.katilijiwoadiwiyono.core.data.repository.ArtRepository
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
+import com.katilijiwoadiwiyono.core.utils.Resource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ArtIteractor @Inject constructor(
     private val repository: ArtRepository
 ): ArtUseCase {
-    override fun getArtwork(page: Int, limit: Int): Flow<PagingData<ArtWorkModel>> {
-        return repository.getArtwork("", page, limit)
+    override fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>> {
+        return repository.getArtwork("", fetchDistance, limit)
     }
 
-    override fun searchArtwork(
+    override suspend fun searchArtwork(
         query: String,
-        page: Int,
+        fetchDistance: Int,
         limit: Int
-    ): Flow<PagingData<ArtWorkModel>> {
-        return repository.getArtwork(query, page, limit)
+    ): Resource<List<ArtWorkModel>> {
+        return repository.searchArtwork(query, fetchDistance, limit)
     }
 }
