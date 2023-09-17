@@ -1,9 +1,11 @@
 package com.katilijiwoadiwiyono.core.data.remote.source
 
+import com.katilijiwoadiwiyono.core.data.remote.response.ArtWorkDetailResponse
 import com.katilijiwoadiwiyono.core.data.remote.response.ArtworkResponse
 import retrofit2.Response
-import retrofit2.http.Query
 
 interface RemoteDataSource {
-    fun getArtwork(page: Int, limit: Int): Response<ArtworkResponse>
+    suspend fun getArtwork(page: Int, limit: Int): Response<ArtworkResponse>
+    suspend fun searchArtworks(query: String, page: Int, limit: Int): Response<ArtworkResponse>
+    suspend fun getArtworkById(id: Double): Response<ArtWorkDetailResponse>
 }

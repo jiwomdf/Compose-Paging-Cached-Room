@@ -1,8 +1,14 @@
 package com.katilijiwoadiwiyono.core.di
 
+import androidx.room.Database
 import com.google.gson.Gson
 import com.katilijiwoadiwiyono.core.BuildConfig
+import com.katilijiwoadiwiyono.core.data.local.ImageGalleryRoom
+import com.katilijiwoadiwiyono.core.data.local.source.LocalDataSource
 import com.katilijiwoadiwiyono.core.data.remote.ArticEduApi
+import com.katilijiwoadiwiyono.core.data.remote.source.RemoteDataSource
+import com.katilijiwoadiwiyono.core.data.repository.ArtRepository
+import com.katilijiwoadiwiyono.core.data.repository.ArtRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,7 +22,10 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideArtRepository(okHttpClient: OkHttpClient, gson: Gson): ArticEduApi {
-        return ArticEduApi.Creator().articApi(BuildConfig.BASE_URL, okHttpClient, gson)
+    fun provideArtRepository(
+        database: ImageGalleryRoom,
+        remoteDataSource: RemoteDataSource,
+    ): ArtRepository {
+        return ArtRepositoryImpl(database, remoteDataSource)
     }
 }

@@ -21,6 +21,12 @@ private val DarkColorScheme = darkColorScheme(
     primaryContainer = md_theme_light_primaryContainer,
     onPrimaryContainer = md_theme_light_onPrimaryContainer,
     onBackground = md_theme_light_background,
+    onSecondary = md_theme_light_primary,
+    onTertiary = md_theme_light_primary,
+    onSurface = md_theme_light_primary,
+    surface = md_theme_light_primary,
+    tertiary = md_theme_light_ternary,
+    tertiaryContainer = md_theme_light_ternaryContainer
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -29,21 +35,17 @@ private val LightColorScheme = lightColorScheme(
     primaryContainer = md_theme_dark_primaryContainer,
     onPrimaryContainer = md_theme_dark_onPrimaryContainer,
     onBackground = md_theme_dark_background,
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    onSecondary = md_theme_dark_primary,
+    onTertiary = md_theme_dark_primary,
+    onSurface = md_theme_dark_primary,
+    surface = md_theme_dark_primary,
+    tertiary = md_theme_light_ternary,
+    tertiaryContainer = md_theme_light_ternaryContainer
 )
 
 @Composable
 fun ImageGalleryComposeTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    isUseDarkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
@@ -51,19 +53,19 @@ fun ImageGalleryComposeTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (isUseDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
+        isUseDarkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            val statusBarColor = if(darkTheme) md_theme_dark_background else md_theme_light_background
+            val statusBarColor = if(isUseDarkTheme) md_theme_dark_background else md_theme_light_background
             window.statusBarColor = statusBarColor.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isUseDarkTheme
         }
     }
 
