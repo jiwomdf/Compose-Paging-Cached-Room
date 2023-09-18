@@ -41,6 +41,7 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil.annotation.ExperimentalCoilApi
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PAGE_LIMIT
 import com.katilijiwoadiwiyono.core.utils.PagingUtil.PAGE_LIMIT_SEARCH
@@ -71,7 +72,7 @@ fun DashboardScreenPreview() {
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalCoilApi::class)
 @Composable
 fun DashboardScreen(
     viewModel: IMainViewModel
@@ -93,8 +94,10 @@ fun DashboardScreen(
     }
 
     LaunchedEffect(debounceText) {
-        keyboardController?.hide()
-        viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE_SEARCH, PAGE_LIMIT_SEARCH)
+        if(debounceText.isNotEmpty()){
+            keyboardController?.hide()
+            viewModel.searchArtwork(debounceText, PERFECT_FETCH_DISTANCE_SEARCH, PAGE_LIMIT_SEARCH)
+        }
     }
 
     LaunchedEffect(debounceText) {

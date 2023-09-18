@@ -10,6 +10,7 @@ import com.katilijiwoadiwiyono.core.utils.ResourceState
 import com.katilijiwoadiwiyono.imagegallerycompose.util.setError
 import com.katilijiwoadiwiyono.imagegallerycompose.util.setValue
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -75,8 +78,14 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _isLoading.setValue(true)
-                _searchResult.setValue(useCase.searchArtwork(query, fetchDistance, limit))
-                _isLoading.setValue(false)
+                withContext(Dispatchers.Default) {
+                    runBlocking {
+                        _searchResult.setValue(useCase.searchArtwork(query, fetchDistance, limit))
+                        withContext(Dispatchers.Main) {
+                        _isLoading.setValue(false)
+                        }
+                    }
+                }
             } catch (ex: Exception) {
                 _isLoading.setValue(false)
                 _searchResult.setError(ex.message.toString())

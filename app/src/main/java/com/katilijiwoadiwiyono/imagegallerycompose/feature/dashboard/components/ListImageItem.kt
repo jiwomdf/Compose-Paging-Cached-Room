@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,14 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.ImageLoader
-import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
-import coil.disk.DiskCache
-import coil.memory.MemoryCache
 import coil.request.ImageRequest
 import coil.size.Size
 import com.katilijiwoadiwiyono.core.domain.model.ArtWorkModel
-import com.katilijiwoadiwiyono.imagegallerycompose.R
 import com.katilijiwoadiwiyono.imagegallerycompose.ui.theme.BackgroundGrey500
 import com.katilijiwoadiwiyono.imagegallerycompose.util.StringUtil.subStrTitle
 
