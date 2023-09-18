@@ -13,6 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +36,7 @@ interface IMainViewModel {
     val isSearchLoading: StateFlow<Boolean>
     fun getArtwork(fetchDistance: Int, limit: Int): Flow<PagingData<ArtWorkModel>>
     fun searchArtwork(query: String, fetchDistance: Int, limit: Int)
+    fun cancelSearchIfThereANewRequest()
 }
 
 class FakeMainViewModel: IMainViewModel {
@@ -46,6 +49,7 @@ class FakeMainViewModel: IMainViewModel {
         return flow {  }
     }
     override fun searchArtwork(query: String, fetchDistance: Int, limit: Int) {}
+    override fun cancelSearchIfThereANewRequest(){}
 }
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -54,8 +58,11 @@ class MainViewModel @Inject constructor(
     private val useCase: ArtUseCase
 ): ViewModel(), IMainViewModel {
 
+    private var searchJob: Job? = null
+
     override val text = MutableStateFlow("")
-    override val debounceText = text.debounce(1000)
+    override val debounceText = text
+        .debounce(1000)
         .distinctUntilChanged()
         .flatMapLatest {
             flowOf(it)
@@ -80,15 +87,26 @@ class MainViewModel @Inject constructor(
                 _isLoading.setValue(true)
                 withContext(Dispatchers.Default) {
                     runBlocking {
-                        _searchResult.setValue(useCase.searchArtwork(query, fetchDistance, limit))
-                        withContext(Dispatchers.Main) {
-                        _isLoading.setValue(false)
+                        searchJob = launch {
+                            _searchResult.setValue(useCase.searchArtwork(query, fetchDistance, limit))
+                            withContext(Dispatchers.Main) {
+                                _isLoading.setValue(false)
+                            }
                         }
                     }
                 }
             } catch (ex: Exception) {
                 _isLoading.setValue(false)
                 _searchResult.setError(ex.message.toString())
+            }
+        }
+    }
+
+    override fun cancelSearchIfThereANewRequest() {
+        viewModelScope.launch {
+            if(searchJob?.isActive == true) {
+                searchJob?.cancelChildren()
+                searchJob?.cancel()
             }
         }
     }

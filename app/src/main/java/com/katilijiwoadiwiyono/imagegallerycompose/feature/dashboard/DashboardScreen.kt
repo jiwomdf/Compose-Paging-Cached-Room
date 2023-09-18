@@ -119,6 +119,7 @@ fun DashboardScreen(
                     onValueChange = {
                         scope.launch {
                             viewModel.text.value = it
+                            viewModel.cancelSearchIfThereANewRequest()
                         }
                     },
                 )
